@@ -116,7 +116,13 @@ Git é um Sitema de controle de versão distribuído.
 
 ### Configurar EditorConfig
 1. Documentação: https://editorconfig.org/
-2. 
+2. Instalar o plug-in do editorconfig
+3. Criar arquivo na raiz do projeto: `.editorconfig`.
+4. No `.editorconfig` conseguimos especificar em quais pastas/diretórios do projeto as regras deverão ser aplicadas, no caso `root = true` para ser aplicado em todo o projeto.
+5. No `.editorconfig` definir que as regrades deverá ser aplicadas em todos arquivos [*]
+6. No `.editorconfig` padronizar identação: `indent_style = space` e `indent_size = 2`
 
+### Configurar Pettier
+// Ponto de parada.
 
 
