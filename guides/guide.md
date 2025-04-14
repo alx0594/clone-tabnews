@@ -1,5 +1,4 @@
 # Dia 2
-
 ## O que é Git e GitHub.
 * Podemos comparar Git e GitHub com o Youtube:
     O arquivo .mp4 (local) seria por exemplo o repositório .git (local)
@@ -30,7 +29,6 @@
     `root.render(<App />)`;
 
 # Dia 4
-
 ## Protocolos
 * Tipos de protocolos: HTTP, FTP, SMTP
 
@@ -55,7 +53,6 @@ export default Home
 
 
 # Dia 5
-
 ## Onde fica o Git?
 Git é um Sitema de controle de versão distribuído.
 
@@ -64,11 +61,11 @@ Git é um Sitema de controle de versão distribuído.
 * `git long --oneline`
 
 ## Git commit
-* 3 Estágios:
-    0. Untracked (arquivos que ainda não estão sendo ratreados/gerenciados/desconhecido pelo git)
-    1. Modificado (modified) 
-    2. Staged (Alterações que serão confirmadas, após adicionadas (add))
-    3. Commit (foto do estado atual, comprometimento, salvar alterações)
+### 3 Estágios:
+0. Untracked (arquivos que ainda não estão sendo ratreados/gerenciados/desconhecido pelo git)
+1. Modificado (modified) 
+2. Staged (Alterações que serão confirmadas, após adicionadas (add))
+3. Commit (foto do estado atual, comprometimento, salvar alterações)
 
 ## Git Diff e Amend
 * Emendar um commit amend...
@@ -81,7 +78,6 @@ Git é um Sitema de controle de versão distribuído.
 4. Emendar alteração com commit anterior: `git commit --amend`. (Pronto, alteração emendada com commit anterior)
 5. git log --oneline (verificar hash do commit): b18996d -> O identificador do commit mudou! **Portanto, os commits são imultáveis.**
 
-
 # Dia 6
 ## Git Push
 * Olhando as alterações via `git status` o git enfatiza que a branch local está com um commit a frente da origin branch (branch remota):
@@ -89,5 +85,38 @@ Git é um Sitema de controle de versão distribuído.
 * Agora verificando o `git status`, a mensagem do git é que a branch local está atualizada com a branch remota (origin)
 > Your branch **is up to date** with 'origin/main'.
 
-## Commits mais rápidos
+# Dia 7
+### Client x Server (Cliente x Servidor)
+> Fazendo uma analogia a um restaurante, o cliente faz um pedido ao garçon (servidor) que retorna com o prato de comida solicitado pelo cliente.
+> O grançon também faz o papel de cliente quando repassa o pedio para cozinheiro. Cliente -> Garnçon -> Cozinheiro. 
+> Cliente (Navegador) -> Server (Vercel, onde o site está hospedado) -> Server (Banco de dados)
+
+### Deploy e hospedagem do site
+1. Vercel: vercel.com
+2. Para autenticação, usar GitHub. Lay Number
+3. Importar repositório do GitHub (Import Git Repository) >> Import >> Deploy
+
+# Dia 8
+> Não desistir no meio do caminho. Ir até o final.
+> Modelo Orgânico vs Modelo 3D. O modelo orgânico é uma boa opção!
+
+# Dia 9
+## Criando Milestones e Issues do Projeto
+> O objetivo das Milestones e Iussues e conseguir quebrar grandes tarefas em tarefas menores e viáveis, de forma a engajar o cérebro no sentido de que está havendo progresso.
+
+> Milestone e Issue possibilita ver o progresso da construção de uma aplicação de forma organizada. Entender o que foi feito e o que ainda precisa ser realizado.
+
+1. No repositório, clicar em Issues, em seguida clicar em Milestone. Nome: Milestone 0: "Em Construção"
+2. Clicar em Issues novamente, criar nova issues. Nome: "Configurar domínio .com.br", vincular a Issue a Milestone 0: "Em Construção"
+
+
+# Dia 10
+### Ligar sincronização do editor (codespaces):
+1. No ínone de conta do VSCode, selecionar opção Settings Sync, em seguida logar em uma conta na nuvem, no caso no GitHub. Com isso, as configurações do ambiente/IDE ficarão salvas.
+
+### Configurar EditorConfig
+1. Documentação: https://editorconfig.org/
+2. 
+
+
 
