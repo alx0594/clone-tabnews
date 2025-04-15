@@ -180,3 +180,7 @@ Git é um Sitema de controle de versão distribuído.
 
 1. Em Settings >> Settings, buscar por: format on save >> Selecionar checkbox.
    > Isso sempre formatará os arquivos assim que salvos.
+
+### Adicionar arquivo .prettierignore
+
+> Em casos de arquivos que não queremos interação do prettier, podemos adicionar o arquivo .prettierignore e adicionar arquivos ou pastas que devem ser ignorados (Ex.: .next)
