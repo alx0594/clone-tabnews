@@ -184,3 +184,127 @@ Git é um Sitema de controle de versão distribuído.
 ### Adicionar arquivo .prettierignore
 
 > Em casos de arquivos que não queremos interação do prettier, podemos adicionar o arquivo .prettierignore e adicionar arquivos ou pastas que devem ser ignorados (Ex.: .next)
+
+# Dia 11
+
+### DNS
+
+> Domínios não passam de apelidos para os IP's.
+
+> DNS - Domain Name System (Sistema de Nomes de Domínios)
+
+> DNS aplido para traduzir para o IP final.
+
+> Um exemplo seria os contatos telefônicos que temos, fica mais fácil vincular o nome do contato ao número de telefone, imagina se houvesse apenas o número, como saberiamos de quem ele é?
+
+> Como funciona: Nosso dispositivo acesso o servidor de DNS, que por sua vez resolve o IP do DNS, retornando para o computador de volta, que ai sim, chama o site em questão:
+
+![alt text](images/dns-resolve.png)
+
+- Desafio, descobrir o IP do domínio: curso.dev
+
+  ping curso.dev -> 104.26.13.195
+
+# Dia 12
+
+## DNS Parte II
+
+> Banco de dados TLD?
+
+> Registro de um domínio pode ser realizado em: registro.br
+
+> NIC.br: Registry (Responsável por armazenar todos os domínios .br e os respectivos IP's no Brasil)
+
+> NIC - Núcleo de Informação e Coordenação do Ponto BR (nic.br)
+
+> Verificar registro do DNS: whatsmydns.net
+
+### Passos para registrar um DSN:
+
+1. Entrar no site: registro.br
+2. Realizar autenticação
+3. Pesquisar por DNS ainda não cadastrado.
+4. Solicitar cadastro do DNS.
+5. Após confirmação, chegará e-mail para efetura pagamento do DNS.
+6. Pronto DNS registrado. O domínio poderá ser consultado no site: whatsmydns.net (Pode levar algum tempo)
+
+### Configurar o servidor de DNS:
+
+- Com base na imagem, o fluxo completo para registrar um domínio e configurar um servidor de DNS segue os seguintes passos:
+  ![alt text](images/fluxo-registro-dns.png)
+  1. Eu como registrante, registro um domínio em registro.br
+  2. Registro.br disponibilizará o domínio no Registry NIC.br, onde tem todos os domínios .br
+  3. O TLD, após configurado o DNS em registro.br, aponstará para os servidores da Vercel, que por sua vez será o servidor autoritativo.
+
+### Passos para configurar o Servidor DNS
+
+1. Acessar a Vercel, onde o site está hospedado, clicar em Domains.
+2. Em Seguida, clicar em Add Existing Domain, selecionar aplicação, continue.
+3. Digitar o domínio cadastrado em registro.br (alxtab.com.br)
+4. Em Nameserver, copiar os nameservers
+5. Acessar registro.br,acessar o domínio alxtab.com.br, em seguida clicar em alterar DNS Server
+6. Adicionar os nameservers copiados da Vercel nos campos Servidor 1 e Servidor 2.
+7. No site whatsmydns.net, verificar se os serversname foram atualizados (leva em torno de 2h).
+
+### Servidor Autoritativo
+
+> O Servidor Autoritativo, no nosso caso é o da Vercel, é quem sabe que com base no domínio, qual é o IP do servidor onde o site está hospedado.
+
+- **dig:** ferramenta especializada em fazer request contra servidores de DNS
+- Usando WSL, instalar o **dig** `sudo apt-get update` e `sudo apt-get install dnsutils`
+- Executar o comando para verificar o DNS: `dig alxtab.com.br A`
+- Executar o comando para verificar o DNS com a mensagem adicionada no servidor da Vercel: `dig alxtab.com.br TXT` (Tipo de Registro TXT)
+
+# Dia 13
+
+### Status dos serviços
+
+- Vercel Status: https://www.vercel-status.com/
+- GitHub Status: https://www.githubstatus.com/
+
+# Dia 14
+
+## Estrutura das pastas
+
+### Sites para desenhar
+
+- https://tree.nathanfriend.com/
+- https://ascii-tree-generator.com/
+
+### Desenho
+
+```
+📦 root
+┣ 📂 pages
+┃ ┗ 📜 index.js
+┣ 📂 models
+┃ ┣ 📜 user.js
+┃ ┣ 📜 content.js
+┃ ┗ 📜 password.js
+┣ 📂 infra
+┃ ┗ 📜 database.js
+┃ ┣ 📂 migrations
+┃ ┣ 📂 provisioning
+┃ ┃ ┣ 📂 staging
+┃ ┃ ┣ 📂 production
+┣ 📂 tests
+```
+
+### Dicas de atalhos para desenhar estrutura das pastas
+
+```
+Raiz: :package: → 📦
+Diretório fechado: :file_folder: → 📁
+Diretório aberto: :open_file_folder: → 📂
+Arquivo: :scroll: → 📜
+
+Use o padrão :nome_do_emoji: nas Issues do GitHub que ele converte automaticamente.
+
+Caracteres para desenhar a estrutura (usando Alt Codes):
+Linha vertical: Alt + 179 → │
+Ramificação: Alt + 195 → ├
+Canto final: Alt + 192 → └
+Estender linhas: Alt 196 → ─
+```
+
+# Dia 15
