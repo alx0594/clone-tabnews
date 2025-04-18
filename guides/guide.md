@@ -308,3 +308,21 @@ Estender linhas: Alt 196 → ─
 ```
 
 # Dia 15
+
+## Testes Automatizados
+
+- **Teste Runner:** Código para testar outro código. Libs: (Jest, Mocha, Ava)
+- **Teste Regressivo:** Valida com base em testes, se o sistema sofreu regressão. Isto é, se algo deixou de funcionar após alterações.
+
+### Instalar Teste Runner Jest
+
+- `npm install -D jest@29.6.2`
+
+### Adicionar script de execução Jest no package.json
+
+- `"test": "jest"`
+
+- `npm run test`
+
+- **Modo assistido:** `"test:watch": "jest --watch"`
+- **Modo assistido Execução:** `npm run test:watch`
