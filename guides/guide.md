@@ -390,4 +390,43 @@ test("somar 2 + 2 deveria retornar 4", () => {
 
 # Dia 16
 
-// Ponto de parada: 1ª Lista Lenta
+### Testes Automatizados
+
+> Dechamps ressalta a questão dos testes integrados terem maior peso que os testes unitários, monstrando novas abordagens em posts do twitter, alterando a visão da pirâmide de testes por Testes honeycomb (Spotify):
+
+> ![alt text](images/testes_honeycomb.png)
+
+> Artigo sobre testes: [Artigos sobre testes](https://caiofuzatto.com.br/post/testes-automatizados-na-teoria/)
+
+### Segregação dos testes
+
+1. Na pasta de tests, criar subpastas **unit** e **integration**. Dessa forma, os testes unitários ficarão separados dos testes de integração.
+
+### Protocolo HTTP
+
+- **Endpoint:** Lugar final onde uma requisição irá chegar. Endereço de uma API (Application Programming Interface).
+- **Criar rota pública para API:** Em conformidade com a especifição do no NextJs, para criar uma rota publica para API, basta dentro de pages criar uma subpasta chamada api.
+
+- **Mudando Porta na execução do Next:** PORT=4000 npm run dev
+
+- **Passos na Aplicação**:
+
+  1. Dentro da pasta pages, criar subpasta api.
+  2. Dentro da pasta api, criar arquivo status.js (api/status.js)
+  3. Função status:
+
+  ```
+  function status(request, response) {
+    return response.status(200).send("Show! Valendo...");
+  }
+
+  export default status;
+  ```
+
+### Comandos básicos para verificar execução local da aplicação
+
+- netstat -tunlp | grep 3000 (Exibe estatísticas de protocolo e conexões de rede TCP/IP atuais.)
+- netstat -ano | grep 3000 (Exibe estatísticas de protocolo e conexões de rede TCP/IP atuais.)
+- netstat -aon | findstr :3000
+- tasklist | findstr <PID>
+- kill <PID>
