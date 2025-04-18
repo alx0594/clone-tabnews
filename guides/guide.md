@@ -326,3 +326,68 @@ Estender linhas: Alt 196 → ─
 
 - **Modo assistido:** `"test:watch": "jest --watch"`
 - **Modo assistido Execução:** `npm run test:watch`
+
+### Criando Teste de Teste
+
+- Criar pasta **tests**
+- Criar arquivo calculadora.test.js
+
+### Primeiro Exemplo: Construção de testes
+
+1. Precisamos usar a função test() do Jest, com dois parâmetros: **Nome do Teste** e uma **função de callback**
+
+```
+test("nome do teste", () => {
+  console.log("Arrow");
+});
+
+test("testando outra condição do meu sistema", () => {
+  console.log("Testando...");
+});
+```
+
+### Segundo Exemplo: Agora Usando expect().toBe()
+
+> Lado esquerdo, valor que foi gerado de forma dinâmica por parte do sistema.
+
+> Lado direito, valor esperado (Hardcoded)
+
+> Espera que algo vindo do sistema **_expect()_** tenha o seguinte valor **_toBe()_**
+
+```
+test("espero que 1 seja 1", () => {
+expect(1).toBe(1); // Espera que 1 seja 1
+});
+```
+
+```
+test("espero que banana seja banana", () => {
+expect("banana").toBe("banana"); // Espera que banana seja banana
+});
+```
+
+### Terceiro Exemplo: Teste de Verdade!
+
+1. Criar uma pasta chamada models, dentro dela adicionar o arquivo calculadora.js
+
+```
+function somar(arg1, arg2) {
+  return arg1 + arg2;
+}
+exports.somar = somar; // Forma de exportar módulos usando CommonsJS
+```
+
+2. Importar funcionalidade importar no arquivo de testes automatizados calculadora.test.js
+
+```
+const calculadora = require("../models/calculadora.js");
+
+test("somar 2 + 2 deveria retornar 4", () => {
+  const resultado = calculadora.somar(2, 2);
+  expect(resultado).toBe(4);
+});
+```
+
+# Dia 16
+
+// Ponto de parada: 1ª Lista Lenta
