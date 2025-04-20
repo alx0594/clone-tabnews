@@ -15,7 +15,7 @@
 3. Instalar versão do nodejs: nvm install 18.14.2
 4. Verificar versões nvm ls
 
-- curiosidade .npmrc, .nvmrc, .bashrc, .vimrc; onde rc significa Run Commands, convesão de arquivos de inicialização.
+- curiosidade .npmrc, .nvmrc, .bashrc, .vimrc; onde rc significa Run Commands, convensão de arquivos de inicialização.
 
 ## Criar arquivo de manifesto e dependências.
 
@@ -152,7 +152,7 @@ Git é um Sitema de controle de versão distribuído.
 2. Instalar o plug-in do editorconfig
 3. Criar arquivo na raiz do projeto: `.editorconfig`.
 4. No `.editorconfig` conseguimos especificar em quais pastas/diretórios do projeto as regras deverão ser aplicadas, no caso `root = true` para ser aplicado em todo o projeto.
-5. No `.editorconfig` definir que as regrades deverá ser aplicadas em todos arquivos [*]
+5. No `.editorconfig` definir que as regras que deverá ser aplicadas em todos arquivos [*]
 6. No `.editorconfig` padronizar identação: `indent_style = space` e `indent_size = 2`
 
 ### Configurar Pettier no package.json
@@ -410,7 +410,7 @@ test("somar 2 + 2 deveria retornar 4", () => {
 - **Passos na Aplicação**:
 
   1. Dentro da pasta pages, criar subpasta api.
-  2. Dentro da pasta api, criar arquivo status.js (api/status.js)
+  2. Dentro da pasta api, criar arquivo status.js (api/v1/status/index.js)
   3. Função status:
 
   ```
@@ -425,55 +425,78 @@ test("somar 2 + 2 deveria retornar 4", () => {
   > response: resposta da aplicação para quem fez a request.
 
   - **Chamando aplicação via curl**
-    
+
     - curl -kv http://localhost:3000
 
     - **Dados retornados da requisição**
 
-      - **O que estiver com asterisco (*):** significa o que o comando curl está fazendo internamente.
+      - **O que estiver com asterisco (\*):** significa o que o comando curl está fazendo internamente.
       - **O que estiver com sinal de maior (>):** O que foi enviado para o servidor (request).
       - **O questiver com sinal de menor (<):** É a resposta do servidor (response)
       - **O questiver entre {}:** É o corpo da requisição (body)
 
 ### Não existe magia
 
-> Não exite magia!  A informação sempre estará em algum lugar.
+> Não exite magia! A informação sempre estará em algum lugar.
 
 1. Como eu acessaria minha aplicação alxtab.com.br pelo IP?
-  1. Na vercel, onde o site está hospedado, acessar os domínios e pegar o IP: 76.76.21.21
-  2. Bacana, o IP é utilizado basicamente em toda Vercel. Ai fica o questinoamento, como que chega no site alxtab.com.br?
-  3. A resposta é simples e podemos fazer da seguinte maneira: curl -kv https://76.76.21.21
-  4. No retorno da requisição, vemos um campo chamado host:
+1. Na vercel, onde o site está hospedado, acessar os domínios e pegar o IP: 76.76.21.21
+1. Bacana, o IP é utilizado basicamente em toda Vercel. Ai fica o questinoamento, como que chega no site alxtab.com.br?
+1. A resposta é simples e podemos fazer da seguinte maneira: curl -kv https://76.76.21.21
+1. No retorno da requisição, vemos um campo chamado host:
 
-    ##### Dados da Request
-    ```
-    * Connected to 76.76.21.21 (76.76.21.21) port 443
-    * using HTTP/1.x
-    > GET / HTTP/1.1
-    > Host: 76.76.21.21
-    ```
+   ##### Dados da Request
 
-    #### Dados da response
+   ```
+   * Connected to 76.76.21.21 (76.76.21.21) port 443
+   * using HTTP/1.x
+   > GET / HTTP/1.1
+   > Host: 76.76.21.21
+   ```
 
-    ```
-    < HTTP/1.1 308 Permanent Redirect
-    < Cache-Control: public, max-age=0, must-revalidate
-    < Content-Type: text/plain
-    < Date: Sat, 19 Apr 2025 18:06:41 GMT
-    < Location: https://vercel.com/
-    < Refresh: 0;url=https://vercel.com/
-    < Server: Vercel
-    ```
+   #### Dados da response
 
-    > Com base no host demonstrado acima, a requisição está sendo direcionada para a Vercel, podemos ver isso no campo __Location__ e no status 308 de redirect
+   ```
+   < HTTP/1.1 308 Permanent Redirect
+   < Cache-Control: public, max-age=0, must-revalidate
+   < Content-Type: text/plain
+   < Date: Sat, 19 Apr 2025 18:06:41 GMT
+   < Location: https://vercel.com/
+   < Refresh: 0;url=https://vercel.com/
+   < Server: Vercel
+   ```
 
-  5. Agora vamos fazer a mesma requisição, porém passando o host no header
-    ```
-    curl -kv https://76.76.21.21 --insecure --header 'host: alxtab.com.br'
-    ```
+   > Com base no host demonstrado acima, a requisição está sendo direcionada para a Vercel, podemos ver isso no campo **Location** e no status 308 de redirect
+
+1. Agora vamos fazer a mesma requisição, porém passando o host no header
+
+   ```
+   curl -kv https://76.76.21.21 --insecure --header 'host: alxtab.com.br'
+   ```
 
 ### API
-Ponto de parada: https://curso.dev/web/versionamento-de-api-endpoint-status
+
+- **Braking Change:** Atualização na API que ocasiona quebra de contrato com quem a consome. Por exemplo, o campo user retornava apenas uma string com o nome do usário e, após alteração, agora retorna um objeto com várias informações do usuário.
+- **Non-branking change:** Alterações na API que não causa quebra de contrato com quem a consome.
+- **URI Path Versioning:** Estratégia de versionamento de API de forma que alterações/melhorias/novos componentes não afete o consumidor da mesma: **https://www.alxtab.com.br/api/v1/contents**
+- **Header Versioning:** Estratégia de versionamento da API onde o consumidor informa a versão que deseja usar através do header.
+
+### Teste de Integração.
+
+1. Dentro da pasta **tests/integration** criar diretório semelhante ao da api status. Por tanto: **tests/integration/api/v1/status/get.test.js** (Logo, aqui só terá testes que fazem get)
+
+- **fetch:** É um **client http**, assim como **curl**, que podemos usar para fazer requisições e recuperar o response.
+
+- **Promise:** Promessa de valor futuro. Em vez de trancar o código e dar continuidade somente quando o fetch retornar o resultado da requisição, temos Promise, que diz: "contiua fazendo o que tem que fazer e volta aqui depois para pegar o resultado prometido".
+
+- **async/await:** Dado o cenário acima da Promise, deixamos a gestão de verificar quando o resultado foi retornado com o Javascript. Por tanto, ao chamar o **fetch**, adicionamos antes dele **await**, que espera o retorno do fetch. **await** só pode ser usado dentro de um função assincrona, dessa maneira, antes da arrow function (), adicionamos **async**, ficando assim: **test("deveria retornar..", async () => {})**
+
+```javascript
+test("GET to /api/v1/status should return 200", async () => {
+  const response = await fetch("http://localhost:3000/api/v1/status");
+  expect(response.status).toBe(200);
+});
+```
 
 ### Comandos básicos para verificar execução local da aplicação
 
