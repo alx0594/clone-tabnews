@@ -407,8 +407,6 @@ test("somar 2 + 2 deveria retornar 4", () => {
 - **Endpoint:** Lugar final onde uma requisição irá chegar. Endereço de uma API (Application Programming Interface).
 - **Criar rota pública para API:** Em conformidade com a especifição do no NextJs, para criar uma rota publica para API, basta dentro de pages criar uma subpasta chamada api.
 
-- **Mudando Porta na execução do Next:** PORT=4000 npm run dev
-
 - **Passos na Aplicação**:
 
   1. Dentro da pasta pages, criar subpasta api.
@@ -417,11 +415,65 @@ test("somar 2 + 2 deveria retornar 4", () => {
 
   ```
   function status(request, response) {
-    return response.status(200).send("Show! Valendo...");
+    response.status(200).json({"Status": "Up"});
   }
 
   export default status;
   ```
+
+  > request: entrada externa ao nosso sistema
+  > response: resposta da aplicação para quem fez a request.
+
+  - **Chamando aplicação via curl**
+    
+    - curl -kv http://localhost:3000
+
+    - **Dados retornados da requisição**
+
+      - **O que estiver com asterisco (*):** significa o que o comando curl está fazendo internamente.
+      - **O que estiver com sinal de maior (>):** O que foi enviado para o servidor (request).
+      - **O questiver com sinal de menor (<):** É a resposta do servidor (response)
+      - **O questiver entre {}:** É o corpo da requisição (body)
+
+### Não existe magia
+
+> Não exite magia!  A informação sempre estará em algum lugar.
+
+1. Como eu acessaria minha aplicação alxtab.com.br pelo IP?
+  1. Na vercel, onde o site está hospedado, acessar os domínios e pegar o IP: 76.76.21.21
+  2. Bacana, o IP é utilizado basicamente em toda Vercel. Ai fica o questinoamento, como que chega no site alxtab.com.br?
+  3. A resposta é simples e podemos fazer da seguinte maneira: curl -kv https://76.76.21.21
+  4. No retorno da requisição, vemos um campo chamado host:
+
+    ##### Dados da Request
+    ```
+    * Connected to 76.76.21.21 (76.76.21.21) port 443
+    * using HTTP/1.x
+    > GET / HTTP/1.1
+    > Host: 76.76.21.21
+    ```
+
+    #### Dados da response
+
+    ```
+    < HTTP/1.1 308 Permanent Redirect
+    < Cache-Control: public, max-age=0, must-revalidate
+    < Content-Type: text/plain
+    < Date: Sat, 19 Apr 2025 18:06:41 GMT
+    < Location: https://vercel.com/
+    < Refresh: 0;url=https://vercel.com/
+    < Server: Vercel
+    ```
+
+    > Com base no host demonstrado acima, a requisição está sendo direcionada para a Vercel, podemos ver isso no campo __Location__ e no status 308 de redirect
+
+  5. Agora vamos fazer a mesma requisição, porém passando o host no header
+    ```
+    curl -kv https://76.76.21.21 --insecure --header 'host: alxtab.com.br'
+    ```
+
+### API
+Ponto de parada: https://curso.dev/web/versionamento-de-api-endpoint-status
 
 ### Comandos básicos para verificar execução local da aplicação
 

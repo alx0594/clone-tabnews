@@ -1,5 +1,5 @@
 function status(request, response) {
-  return response.status(200).send("Status Ok");
+  response.status(200).json({"Status": "Up"});
 }
 
 export default status;
