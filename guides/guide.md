@@ -505,3 +505,50 @@ test("GET to /api/v1/status should return 200", async () => {
 - netstat -aon | findstr :3000
 - tasklist | findstr <PID>
 - kill <PID>
+
+# Dia 17
+
+### Qual banco de dados escolher?
+
+1. **Banco de dados:** Postgres
+2. **Conexão e Queries:** Módulo pg.
+3. **Gerenciador de Migrations:** node-pg-migrate
+
+### Subir banco de dados (Local)
+
+> Documentação Postrges Docker Hub: [docker hub postres](https://hub.docker.com/_/postgres)
+
+> Comando para subir container usando docker compose: `docker compose -f infra/compoase.yaml up -d`
+
+> Criar arquivo compose: infra/compose.yaml:
+
+```yaml
+services:
+  database:
+    image: postgres:16.0-alpine3.18
+    environment:
+      POSTGRES_PASSWORD: local_password
+    ports:
+      # - host:container
+      - "5432:5432"
+```
+
+### Instalar binário do psql no windows.
+
+1. Baixar binário: https://www.enterprisedb.com/download-postgresql-binaries (versão 16.8)
+2. Mapear binário nas variáveis de ambiente: Tools/psql.exe (Só o client)
+3. Testar: psql --version
+
+### Instalar psql no Ubuntu
+
+1. sudo apt-get update
+2. sudo apt install postgresql-client -y (Instalar só o client, e não o serviço de banco de dados.)
+3. Testar: psql --version
+
+### PSQL conectando no banco de dados.
+
+1. Subir banco de dados postgres: docker compose -f infra/compose.yaml up -d --force-recreate
+2. Testando conexão PSQL: psql --host=localhost --username=postgres --port=5432
+3. Digitar senha assim que solicitado. local_password
+4. Show! Conectado.
+5. Sair da conexão do PSQL: \q
