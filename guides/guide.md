@@ -324,7 +324,7 @@ Estender linhas: Alt 196 → ─
 
 - `npm run test`
 
-- **Modo assistido:** `"test:watch": "jest --watch"`
+- **Modo assistido:** `"test:watch": "jest --watchAll"`
 - **Modo assistido Execução:** `npm run test:watch`
 
 ### Criando Teste de Teste
@@ -520,7 +520,7 @@ test("GET to /api/v1/status should return 200", async () => {
 
 > Comando para subir container usando docker compose: `docker compose -f infra/compoase.yaml up -d`
 
-> Criar arquivo compose: infra/compose.yaml:
+> Arquivo compose: infra/compose.yaml:
 
 ```yaml
 services:
@@ -552,3 +552,97 @@ services:
 3. Digitar senha assim que solicitado. local_password
 4. Show! Conectado.
 5. Sair da conexão do PSQL: \q
+
+# Dia 18
+
+### Interação com o banco de dados
+
+1. Instalar módulo pg
+
+   ```
+   npm install pg@8.11.3
+   ```
+
+2. Dentro da pasta infra, criar arquivo database.js
+
+3. Em database.js, importar módulo pg
+
+   ```javascript
+   import { Client } from "pg";
+   ```
+
+4. Criar função query e export do módulo database.js
+
+   ```javascript
+   async function query(queryObject) {
+     const client = Client({
+       host: process.env.POSTGRES_HOST,
+       port: process.env.POSTGRES_PORT,
+       user: process.env.POSTGRES_USER,
+       database: process.env.POSTGRES_DB,
+       password: process.env.POSTGRES_PASSWORD,
+     });
+     await client.connect();
+     const result = await client.query(queryObject);
+     await client.end();
+     return result;
+   }
+
+   export default {
+     query: query,
+   };
+   ```
+
+> Client recebe os parâmetros para conexão com o banco de dados.
+
+> async/await, deixando o javascript gerenciar as interações assíncronas, aguardando que a conexão seja estabelecida, que o resultado da query seja retornada e o fechamento da conexão seja efetuado.
+
+> Por fim, realizado o export default de um objeto com o parâmetro query, que recebe a funtion query.
+
+5. No modulo de verificação de status pages/api/v1/status/index.js, incluir verificação do banco de dados
+
+```javascript
+import database from "../../../infra/database.js";
+
+async function status(request, response) {
+  const result = await database.query("SELECT 1 + 1 as sum;");
+  console.log(result.rows);
+  response.status(200).json({ status: "Up" });
+}
+
+export default status;
+```
+
+> Na função status é adicionado a chamada ao banco de dados, await pelo fato de ser uma chamada assíncrona e deverá aguardar o resultado.
+
+### Variáveis de Ambiente
+
+1. Criar arquivo .env (NextJS já permite usar .env nativamente)
+2. Dentro de .env, adicionar as credencias de conexão com o banco de dados
+
+```javascript
+POSTGRES_HOST = localhost;
+POSTGRES_PORT = 5432;
+POSTGRES_USER = postgres;
+POSTGRES_DB = postgres;
+POSTGRES_PASSWORD = local_passoword;
+```
+
+3. Usando as variáveis de ambiente dentro dos módulos
+
+```javascript
+process.env;
+```
+
+4. Fazer o compose também ler variáveis de ambiente **env_file**
+
+```yaml
+services:
+  database:
+    image: "postgres:16.0-alpine3.18"
+    env_file:
+      - ../.env
+    ports:
+      #host:container
+      - "5432:5432"
+```
