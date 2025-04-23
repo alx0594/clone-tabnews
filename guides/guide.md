@@ -656,3 +656,34 @@ services:
 1. Renomeando `git mv .env .env.development`
 
 > O objetivo de renomear o .env para .env.development é deixá-lo mais semântico, deixando claro que são para o ambiente local de desenvolvimento.
+
+2. Caso necessário remoção de dados confidências do repositório: [documentação](https://docs.github.com/pt/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository)
+
+### Root Path
+
+1. O objetivo deste tópico é melhorar essa forma de import:
+
+> O NodeJS não assume que está trabalhando dentro de um projeto que tem uma raiz. Para ele é só um conjunto de scripts que vão se reportando e se referenciando.
+
+```javascript
+import database from "../../../../infra/database.js";
+```
+
+> **relative** import _../../../_ vs **absolute** import _infra/database.js_
+
+> Para tanto, foi criado o **jsconfig.json** e **tsconfig.json** que pode especificar a raiz do projeto, facilitando o import absoluto.
+
+#### Passos
+
+1. Criar arquivo `jsconfig.json`
+2. Adicionar baseUrl, dentro de compilerOptions, especificando diretório raiz
+
+##### conteúdo do `jsconfig.json`
+
+```json
+{
+  "compilerOptions": {
+    "baseUrl": "."
+  }
+}
+```
