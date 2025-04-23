@@ -641,7 +641,7 @@ services:
   database:
     image: "postgres:16.0-alpine3.18"
     env_file:
-      - ../.env
+      - ../.env.development
     ports:
       #host:container
       - "5432:5432"
@@ -651,8 +651,8 @@ services:
 
 ### Mover arquivo dotenv e renomeá-lo usando git
 
-```
+> Obs.: antes de realizar o `git mv` certificar-se de que não há nada em staging
 
-```
+1. Renomeando `git mv .env .env.development`
 
 > O objetivo de renomear o .env para .env.development é deixá-lo mais semântico, deixando claro que são para o ambiente local de desenvolvimento.
