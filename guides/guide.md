@@ -646,3 +646,13 @@ services:
       #host:container
       - "5432:5432"
 ```
+
+# Dia 19
+
+### Mover arquivo dotenv e renomeá-lo usando git
+
+```
+
+```
+
+> O objetivo de renomear o .env para .env.development é deixá-lo mais semântico, deixando claro que são para o ambiente local de desenvolvimento.
