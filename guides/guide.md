@@ -687,3 +687,26 @@ import database from "../../../../infra/database.js";
   }
 }
 ```
+
+### Facilitando interação com VSCode
+
+1. FuzzySearch (Busca Difusa): control + P
+2. Digitar nome do arquivo ou palavra-chave como **pk@sc** que abrirá o arquivo **package.json** na propriedade de scripts
+
+### Criando scripts docker compose em package.json
+
+```json
+{
+   "scripts": {
+    "dev": "npm run services:up && next dev",
+    "services:up": "docker compose -f infra/compose.yaml up -d",
+    "services:down": "docker compose -f infra/compose.yaml down",
+    "services:stop": "docker compose -f infra/compose.yaml stop",
+    "..."
+  },
+}
+```
+
+### Juntando comando add com commit
+
+`git commit -am "add services scripts"`
