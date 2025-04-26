@@ -1,8 +1,8 @@
 # Dia 21
 
-### Aplicação em Produção
+## Aplicação em Produção
 
-#### Cenário atual
+### Cenário atual
 
 **Erro**  
 No cenário atual a aplicação está retornando erro 500 na chamada à API: https://alxtab.com.br/api/v1/status.
@@ -18,3 +18,29 @@ No log (produção) temos erro de conexão com o banco de dados (local): **_Erro
 - **CONN**: CONNECTION
 - **REFUSED**: REFUSED  
   Por tanto, Erro de conexão recusada.
+
+### Banco de dados em Produção
+
+- [x] ElephantSQL (gratuíto)
+- [x] [Neon](https://neon.tech/) (gratuíto)
+- [x] DigitalOcean (pago)
+
+  1. Neon
+
+     - Auth usando GitHub
+     - Project Name: QWx4VGFiCg==
+     - Branch: production
+     - DabaseName: YWx4dGFiCg==
+     - Owner: neondb_owner
+     - Pegar parâmetros de conexão
+     - Adicionar propriedade ssl: true em database.js
+
+  2. Na Vercel, configurar variáveis de ambiente do Banco de dados fornecidos pela Neon.
+
+     - Vercel >> Project (clone-tabnews) >> Settings >> Environment Variables >> Apenas Production [x] >> Adicionar Variáveis >> Save.
+
+     - Em Demployments, fazer redeploy para aplicação pegar as variáveis de ambiente.
+
+### Dicas
+
+Comando git para restaurar alterações: `git restore .` onde o ponto (.) indica que é para restaurar tudo.
