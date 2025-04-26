@@ -710,3 +710,188 @@ import database from "../../../../infra/database.js";
 ### Juntando comando add com commit
 
 `git commit -am "add services scripts"`
+
+# Dia 20
+
+## Desenvolvendo status/index.js usando TDD /tests/get.test.js
+
+### Desenvolvimento do Status
+
+```javascript
+import database from "infra/database.js";
+
+async function status(request, response) {
+  const updateAt = new Date().toISOString();
+
+  const databaseVersionResult = await database.query("SHOW server_version;");
+  const databaseVersionValue = databaseVersionResult.rows[0].server_version;
+
+  const databaseMaxConnectionsResult = await database.query(
+    "SHOW max_connections;",
+  );
+  const databaseConnectionsValue =
+    databaseMaxConnectionsResult.rows[0].max_connections;
+
+  const databaseName = process.env.POSTGRES_DB;
+  const databaseOpenConnectionsResult = await database.query({
+    text: "SELECT count(*)::int FROM pg_stat_activity WHERE datname = $1;",
+    values: [databaseName],
+  });
+  const databaseOpenedConnectionsValue =
+    databaseOpenConnectionsResult.rows[0].count;
+
+  response.status(200).json({
+    update_at: updateAt,
+    dependencies: {
+      database: {
+        version: databaseVersionValue, //"postgres:16.0-alpine3.18" compose.yaml
+        max_connections: parseInt(databaseConnectionsValue),
+        open_connections: databaseOpenedConnectionsValue,
+      },
+    },
+  });
+}
+
+export default status;
+```
+
+### Desenvolvendo Testes de integração de Status
+
+> Os testes estão sempre validando o que vem no corpo da resposta ao chamar `http://localhost:3000/api/v1/status`
+
+##### Por tanto, são validados:
+
+1. Status code igual a `200`
+2. Data válida e no padrão ISO-8604
+3. Versão do banco de dados igual a `16.0`
+4. O número máximo de conexões que podem ser feitas é igual a `100`
+5. O número de conexões abertas é igual a `1`
+
+```javascript
+test("GET to /api/v1/status should return 200", async () => {
+  const response = await fetch("http://localhost:3000/api/v1/status");
+  expect(response.status).toBe(200);
+
+  const responseBody = await response.json();
+
+  const parsedUpdateAt = new Date(responseBody.update_at).toISOString();
+  expect(responseBody.update_at).toEqual(parsedUpdateAt);
+
+  expect(responseBody.dependencies.database.version).toEqual("16.0");
+
+  expect(responseBody.dependencies.database.max_connections).toEqual(100);
+
+  expect(responseBody.dependencies.database.open_connections).toEqual(1);
+});
+```
+
+### Dicas
+
+- converte texto em json
+
+  `const responseBody = response.json();`
+
+- Pega data atual, formato timestamp
+
+  `const updateAt = Date.now(); // Retornou no formato timestamp`
+
+- Pega data atual, formato ISO-8601
+
+  `const updateAt = new Date().toISOString(); //ISO-8601`
+
+- Convensão de retorno de dados de API
+
+  `update_at` em vez de `updateAt`
+
+- Verificar campo do response está definido
+
+  `expect(responseBody.update_at).toBeDefined();`
+
+- Garantir que em update_at o valor retornado de fato é uma data
+
+  `new Date(responseBody.update_at).toISOString();`
+
+  A conversão irá garantir que é um campo data `toISOString()`.
+
+- Parse da data para garantir que valor não seja null
+
+  `const parsedUpdateAt = new Date(responseBody.update_at).toISOString();
+expect(responseBody.update_at).toEqual(parsedUpdateAt);`
+
+  > new Date() aceita receber um parâmetro null, e retorna a data 1970-01-01T00:00:00.000Z, que de fato é uma data, porém inválida. Para garantir que seja um data valida, fazemos o parse acima e verificamos a igualdade.
+
+- TDD
+
+  1. Primeiro estágio **Red**, implemente os testes que não irão passar.
+  2. Segundo estágio **Green**, onde a implementação é feita e os testes passam.
+  3. Se necessário, entrar no estágio **refactor**, onde há a possibilidade de melhorar o código.
+
+  Igual fizemos na impementação de verificação da versão do banco de dados.
+
+  - Implementamos o teste:
+
+    `expect(responseBody.dependencies.database.version).toEqual("16.0");`
+
+  - Só depois implementamos o código:
+
+    ```javascript
+    response.status(200).json({
+      update_at: updateAt,
+      dependencies: {
+        database: {
+          version: "16.0", //"postgres:16.0-alpine3.18" compose.yaml
+        },
+      },
+    });
+    ```
+
+#### Interação com o Banco de Dados
+
+- Versão do banco de dados
+
+  ```javascript
+  const databaseVersionResult = await database.query("SHOW server_version;");
+  const databaseVersionValue = databaseVersionResult.rows[0].server_version;
+  ```
+
+- Número máximo de conexões que podem ser feitas contra o banco de dados
+
+  ```javascript
+  const databaseMaxConnectionsResult = await database.query(
+    "SHOW max_connections;",
+  );
+  const databaseConnectionsValue =
+    databaseMaxConnectionsResult.rows[0].max_connections;
+  ```
+
+- Verificar conexões abertas no Banco de dados, usando boas práticas contra SQL Injection
+
+  ```javascript
+  const databaseName = process.env.POSTGRES_DB;
+  const databaseOpenConnectionsResult = await database.query({
+    text: "SELECT count(*)::int FROM pg_stat_activity WHERE datname = $1;",
+    values: [databaseName],
+  });
+  const databaseOpenedConnectionsValue =
+    databaseOpenConnectionsResult.rows[0].count;
+  ```
+
+  > A query usando {text, value} faz com que o módulo **pg** valide os valores passados em values, avaliando possíveis ataques de SQL Injection (; DROP Table Empresas; --)
+
+- Consertar conexões vazando, usando try catch finally
+
+  - [Node Postgres](node-postgres.com)
+
+  ```javascript
+  await client.connect();
+  try {
+    const result = await client.query(queryObject);
+    return result;
+  } catch (error) {
+    console.error(error);
+  } finally {
+    await client.end();
+  }
+  ```
+
+  > O cenário é, quando estamos abrindo conexões contra o banco de dados, caso dê alguma execeção, não estamos fechando a conexão, aumentando cada vez mais o número de conexões abertas. Por tanto, a solução é aplicar um try, catch, finally; onde o finally independete do que aconteça, irá fechar a conexão com o banco de dados [pg doc](node-postgres.com)
