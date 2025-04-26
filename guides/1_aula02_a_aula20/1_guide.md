@@ -762,7 +762,7 @@ export default status;
 ##### Por tanto, são validados:
 
 1. Status code igual a `200`
-2. Data válida e no padrão ISO-8604
+2. Data válida e no padrão ISO-8601
 3. Versão do banco de dados igual a `16.0`
 4. O número máximo de conexões que podem ser feitas é igual a `100`
 5. O número de conexões abertas é igual a `1`
