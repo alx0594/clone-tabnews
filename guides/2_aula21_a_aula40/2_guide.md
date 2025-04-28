@@ -97,7 +97,7 @@ ssl: process.env.NODE_ENV === "development" ? false : true,
               ca: process.env.POSTGRES_CA,
             };
           }
-          return process.env.NODE_ENV === "development" ? true : true;
+          return process.env.NODE_ENV === "development" ? false : true;
         }
         ```
 
@@ -112,3 +112,90 @@ ssl: process.env.NODE_ENV === "development" ? false : true,
 Comando git para restaurar alterações: `git restore .` onde o ponto (.) indica que é para restaurar tudo.
 
 Ou simplemente de um arquivo `git restore .env.development `
+
+# Dia 22
+
+### Migrations
+
+1. "Proíbido alterações manuais no banco de dados"
+2. Criar arquivo de migração
+3. _up_ para fazer alterações
+4. _down_ para desfazer alterações
+
+### Instalar dependência
+
+`npm install node-pg-migrate@6.2.2`
+
+**node-pg_migrate**
+https://salsita.github.io/node-pg-migrate/getting-started
+
+**node-pg_migrate cli**
+https://salsita.github.io/node-pg-migrate/cli
+
+### Adicionar spcripts no package.json
+
+`"migration:create": "node-pg-migrate --migrate-dir infra/migrations create"`
+
+**_--migrate-dir_**: diretório onde as migrations serão criadas, opção reduzida do comando seria `-m`
+
+### Executar comando do script
+
+`npm run migration:create` **_first migrate test_**
+
+**first migrate test** é o nome da migrate que quero criar.
+
+Migration criada: **_clone-tabnews/migrations/1745879255524_first-magrate-test.js_**
+
+**Entendendo o Arquivo Criado**
+
+1. **1745879255524**: Unix timestamp do momento exato da criação do arquivo da migration
+
+2. **first-magrate-test.js**: Nome do arquivo passado como argumento na execução do comando npm run:migration create <nome>
+
+3. Conteúdo que compoem um arquivo de migration
+
+   ```javascript
+   exports.shorthands = undefined;
+
+   exports.up = (pgm) => {};
+
+   exports.down = (pgm) => {};
+   ```
+
+   **UP**: Aplicando alterações de forma crescente, para cima. Ex.: criar tabela `user`, altera a coluna `idade`
+
+   **DOWN**: Apliquei uma migration, mas foi um erro aplicar ela, desfazer operação.
+
+### Criar script que faz up das migrations no package.json
+
+`"migration:up": "node-pg-migrate -m infra/migrations up"`
+
+**Apresentou erro de credenciais, seguiremos os passos abixo para corrigir**
+
+1. Instalar dotenv para auxiliar o módulo **node-pg-migrate**
+   `npm install dotenv@16.4.4`
+
+2. No comando de **UP** adicionar .envPath .env.development
+   `"migration:up": "node-pg-migrate --migrate-dir infra/migrations --envPath .env.development up"`
+
+3. Em `.env.development`, adiconar variável `DATBASE_URL` (connection string)
+
+**Exemplo connection string:** protocolo://user:password@host:port/database
+
+```
+Protocolo: postgres
+user: local_user
+password: local_password
+host: localhost
+port: 5432
+database: local_db
+```
+
+**Connection string:**
+`postgres://local_user:local_password@localhost:5432/local_db`
+
+3. Executar migration
+   `npm run migration:up`
+
+//ponto de parada:
+https://curso.dev/web/executando-migrations-cli
