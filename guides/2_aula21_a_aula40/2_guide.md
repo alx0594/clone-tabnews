@@ -115,7 +115,7 @@ Ou simplemente de um arquivo `git restore .env.development `
 
 # Dia 22
 
-### Migrations
+## Migrations
 
 1. "Proíbido alterações manuais no banco de dados"
 2. Criar arquivo de migração
@@ -197,5 +197,45 @@ database: local_db
 3. Executar migration
    `npm run migration:up`
 
-//ponto de parada:
-https://curso.dev/web/executando-migrations-cli
+## Migrations parte 2
+
+**Dry Run**: Executar as migrations, sem executar de verdade, de "metira". Só para ver o que seria executado se tivesse executado de "verdade" (GET) /migrations
+
+**Live Run**: Execução das migration de verdade (POST) /migrations
+
+### Criando testes de integração e endpoint /migrations
+
+1.  Dentro da pasta test/integration, criar `migrations/get.test.js`
+2.  Em **migrations/get.test.js**, adicionar chamada ao endpoint /migrations
+    `http://localhost:3000/api/v1/migrations`
+3.  A primeira versão do teste ficará conforme abaixo:
+
+    ```javascript
+    test("GET to /api/v1/migrations should return 200", async () => {
+      const response = await fetch("http://localhost:3000/api/v1/migrations");
+      expect(response.status).toBe(200);
+    });
+    ```
+
+4.  Neste momento, os testes deverão estar retornando 404. Agora vamos implementar o endpoint /migrations.
+
+5.  Em **pages/api/v1**, criar api para migrations `/migrations/index.js`
+
+6.  Faremos o `export default` já na assinatura da function
+
+    ```javascript
+    export default async function migrations(request, response) {
+      response.status(200).json({});
+    }
+    ```
+
+7.  Agora os testes deverão retornar sucesso!
+
+### Implementação migrations/index.js
+
+### Implementação test de integração
+
+#### Dicas
+
+- Execução específica dos testes. Com o comando abaixo, será executado apenas testes dentro de /migrations
+  `npm run test:watch -- migrations`
