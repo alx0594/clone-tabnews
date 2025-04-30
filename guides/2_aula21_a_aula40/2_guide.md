@@ -233,9 +233,70 @@ database: local_db
 
 ### Implementação migrations/index.js
 
+- Documentação Programmatic API: https://salsita.github.io/node-pg-migrate/api
+
+**Versão 1, que será refatorada no dia 24**
+
+Quando o método for GET, a execução das migrations serão no modo dryRun.
+Quando POST, serão executadas de verdade.
+
+```javascript
+import migrationRunner from "node-pg-migrate";
+import { join } from "node:path";
+
+export default async function migrations(request, response) {
+  if (request.method === "GET") {
+    const migrations = await migrationRunner({
+      databaseUrl: process.env.DATABASE_URL,
+      dryRun: true,
+      dir: join("infra", "migrations"),
+      direction: "up",
+      verbose: true,
+      migrationsTable: "pgmigrations",
+    });
+    return response.status(200).json(migrations);
+  }
+
+  if (request.method === "POST") {
+    const migrations = await migrationRunner({
+      databaseUrl: process.env.DATABASE_URL,
+      dryRun: false,
+      dir: join("infra", "migrations"),
+      direction: "up",
+      verbose: true,
+      migrationsTable: "pgmigrations",
+    });
+    return response.status(200).json(migrations);
+  }
+
+  return response.status(405).end();
+}
+```
+
 ### Implementação test de integração
+
+**Versão 1, que será refatorada no dia 24**
+
+```javascript
+test("POST to /api/v1/migrations should return 200", async () => {
+  const response = await fetch("http://localhost:3000/api/v1/migrations", {
+    method: "POST",
+  });
+  expect(response.status).toBe(200);
+
+  const responseBody = await response.json();
+
+  console.log(responseBody);
+  expect(Array.isArray(responseBody)).toBe(true);
+});
+```
 
 #### Dicas
 
 - Execução específica dos testes. Com o comando abaixo, será executado apenas testes dentro de /migrations
   `npm run test:watch -- migrations`
+
+- Dexiando a execução ainda mais específica, agora para executar apenas o test de post:
+  `npm run test:watch -- migrations.post` (migraions.pos é uma Regex)
+
+# Dia 24
