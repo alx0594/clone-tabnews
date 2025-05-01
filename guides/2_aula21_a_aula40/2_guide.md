@@ -300,3 +300,69 @@ test("POST to /api/v1/migrations should return 200", async () => {
   `npm run test:watch -- migrations.post` (migraions.pos é uma Regex)
 
 # Dia 24
+
+### Tornando testes Jest serial (sequencial)
+
+1. No package.json, adicionar o parâmetro `runInBand` nos comandos jest
+
+   `jest --runInBand`  
+   `jest --watchAll --runInBand`
+
+### Limpando base de dados para execução dos testes
+
+1. Limpar state do banco de dados.
+2. No test de get /migrations, importar dabase.js para executar a query de limpeza do banco de dados.
+
+   > Tem uma questão. A versão do Jest que estamos usando não suporta **_import_** ainda. Erro: **_SyntaxError: Cannot use import statement outside a module_**
+
+   > Dessa forma, vamos criar um arquivo na raiz do projeto chmado `jest.config.js` onde o NextJS dará o super poder de import ao Jest
+
+   > Documentação Jest com Next.js: https://nextjs.org/docs/app/guides/testing/jest
+
+   **jest.config.js**
+
+   ```javascript
+   const dotenv = require("dotenv");
+   dotenv.config({
+     path: ".env.development",
+   });
+   const nextJest = require("next/jest");
+
+   const createJestConfig = nextJest({
+     dir: ".",
+   });
+   const jestConfig = createJestConfig({
+     moduleDirectories: ["node_modules", "<rootDir>"],
+   });
+
+   module.exports = jestConfig;
+   ```
+
+3. No módulo de `migrations/get.test.js`, agora podemos importar `infra/database.js`
+
+4. Em `migrations/get.test.js` criar function cleanDatabase
+
+   ```javascript
+   async function cleanDatabase() {
+     await database.query("DROP schema public cascade; create schema public");
+   }
+   ```
+
+5. Usar a function `beforeAll()` do Jest para executar a function `cleanDatbase()`
+   `beforeAll(cleanDatabase);`
+
+6. Fazer o mesmo processo no teste de post, incluindo import, function cleanDabase() e beforeAll()
+
+   ```javascript
+   import database from "infra/database.js";
+
+   beforeAll(cleanDatabase);
+
+   async function cleanDatabase() {
+     await database.query("DROP schema public cascade; create schema public");
+   }
+   ```
+
+## Refatorando código e testes
+
+Ponto de parada: https://curso.dev/web/executando-migrations-endpoint-live-run-parte-4

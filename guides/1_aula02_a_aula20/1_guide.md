@@ -553,11 +553,25 @@ services:
 4. Show! Conectado.
 5. Sair da conexão do PSQL: \q
 
+### Documentação Postgres
+
+1. SQL SHOW: https://www.postgresql.org/docs/current/sql-show.html
+
+2. PG-STAT-ACTIVITY: https://www.postgresql.org/docs/current/monitoring-stats.html#PG-STAT-ACTIVITY-VIEW
+
+3. Catalogo: https://www.postgresql.org/docs/current/catalogs-overview.html
+
+4. Dicas para busca no site:
+
+`site:postgresql.org/docs current <termo de busca>`
+
+`site:postgresql.org/docs current show max_connections`
+
 # Dia 18
 
 ### Interação com o banco de dados
 
-1. Instalar módulo pg
+1. Instalar módulo pg (https://node-postgres.com/apis/client)
 
    ```
    npm install pg@8.11.3
