@@ -365,4 +365,359 @@ test("POST to /api/v1/migrations should return 200", async () => {
 
 ## Refatorando código e testes
 
-Ponto de parada: https://curso.dev/web/executando-migrations-endpoint-live-run-parte-4
+#### Código Concreto /migrations
+
+1. Na function migrations definimos um spread (...defaultMigrationsOptions) definindo as propriedades de como e onde estão as migrations a serem executadas.
+
+2. De acordo com o método de requisição GET ou POST, definiremos se as migrations serão executadas (POST) e `dryRun: false` ou apenas validadas (GET) `dryRun: true`
+
+3. Qualquer chamada ao `/migrations` que não seja usando os método HTTP GET ou POST, deverá retornar status code 405, sem nenhum dado no corpo da requisição `.end()`
+
+```javascript
+import migrationRunner from "node-pg-migrate";
+import { join } from "node:path";
+
+export default async function migrations(request, response) {
+  const defaultMigrationsOptions = {
+    databaseUrl: process.env.DATABASE_URL,
+    dryRun: true,
+    dir: join("infra", "migrations"),
+    direction: "up",
+    verbose: true,
+    migrationsTable: "pgmigrations",
+  };
+
+  if (request.method === "GET") {
+    const pendingMigrations = await migrationRunner(defaultMigrationsOptions);
+    return response.status(200).json(pendingMigrations);
+  }
+
+  if (request.method === "POST") {
+    const migratedMigrations = await migrationRunner({
+      ...defaultMigrationsOptions,
+      dryRun: false,
+    });
+
+    if (migratedMigrations.length > 0) {
+      return response.status(201).json(migratedMigrations);
+    }
+    return response.status(200).json(migratedMigrations);
+  }
+
+  return response.status(405).end();
+}
+```
+
+#### Teste /migrations POST
+
+1. Limpa a base de dados, excluindo o schema publica em cascata (cascade), pois existem várias dependências do schema public.
+
+2. Em seguinda, na mesma query, recriamos o schema public, deixando a base de dados sempre limpa para executar os testes.
+
+3. Na primeira execução de POST, esperamos que haja migrations pendentes para serem executadas (tamanho do array maior que zero) e response `[{path: 'infra/migrations/4154646464..', name: '4154646464_test-migrations', timestamp: 4154646464}]`, retornando status code 201. Executando novamente, esperamos que não haja mais migrations pendentes a serem executadas (tamanho do array seja 0) e response `[]`, retorando status code 200.
+
+```javascript
+import database from "infra/database.js";
+
+beforeAll(cleanDatabase);
+
+async function cleanDatabase() {
+  await database.query("DROP schema public cascade; create schema public");
+}
+
+test("POST to /api/v1/migrations should return 200", async () => {
+  const response1 = await fetch("http://localhost:3000/api/v1/migrations", {
+    method: "POST",
+  });
+  expect(response1.status).toBe(201);
+
+  const response1Body = await response1.json();
+
+  expect(Array.isArray(response1Body)).toBe(true);
+  expect(response1Body.length).toBeGreaterThan(0);
+
+  const response2 = await fetch("http://localhost:3000/api/v1/migrations", {
+    method: "POST",
+  });
+  expect(response2.status).toBe(200);
+
+  const response2Body = await response2.json();
+
+  expect(Array.isArray(response2Body)).toBe(true);
+  expect(response2Body.length).toBe(0);
+});
+```
+
+#### Dicas
+
+- Operardor spread **...** (espalhar) `...defaultMigrationsOptions` (...). Irá expalhar dentro de {} todas as propriedades que estão em **defaultMigrationsOptions**
+
+```javascript
+const defaultMigrationsOptions = {
+  databaseUrl: process.env.DATABASE_URL,
+  dryRun: true,
+  dir: join("infra", "migrations"),
+  direction: "up",
+  verbose: true,
+  migrationsTable: "pgmigrations",
+};
+```
+
+```javascript
+const migrations = await migrationRunner({
+  ...defaultMigrationsOptions,
+});
+```
+
+- Usando o operador spread, conseguimos sobrescrever qualquer propriedade dentro do objeto, por exemplo `dryRun: false`:
+
+```javascript
+const migrations = await migrationRunner({
+  ...defaultMigrationsOptions,
+  dryRun: false,
+});
+```
+
+# Dia 25
+
+### Iniciando com uma problemática
+
+- No momento do projeto, nosso arquivo `.env.development` não consegue fazer interpolação de variávies de ambiente, por exemplo, $POSTGRES_USER.
+
+- Isso seria necessário para diminuirmos a duplicação dos valores das variáveis, que também utilizamos em DATABASE_URL (connection string)
+
+Forma atual do `.env.development`:
+
+```yaml
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_USER=local_user
+POSTGRES_DB=local_db
+POSTGRES_PASSWORD=local_password
+DATABASE_URL=postgres://local_user:local_password@localhost:5432/local_db
+```
+
+- Para resolvermos isso, iniciamos instalando a dependência `npm install dotenv-expand@11.0.6`, que dará esses poderes ao arquivo `.env.development`
+
+- Ajustando `.env.development`
+
+```yaml
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_USER=local_user
+POSTGRES_DB=local_db
+POSTGRES_PASSWORD=local_password
+DATABASE_URL=postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB
+```
+
+- para teste, podemos executar os scripts de UP das migrations, que depende da variável **DATABASE_URL** `npm run migration:up`
+
+### Refatatorando `database.js` para retornar uma nova instância do banco de dados
+
+1. Criar function `getNewClient()` e adicionar a ela a lógica de abrir conexão com banco de dados.
+
+```javascript
+async function getNewClient() {
+  const client = new Client({
+    host: process.env.POSTGRES_HOST,
+    port: process.env.POSTGRES_PORT,
+    user: process.env.POSTGRES_USER,
+    database: process.env.POSTGRES_DB,
+    password: process.env.POSTGRES_PASSWORD,
+    ssl: getSSLValues(),
+  });
+
+  await client.connect();
+  return client;
+}
+```
+
+2. Na function `query(objectQuery)` usar a function `getNewClient()` para abrir conexão com o banco de dados `client = await getNewClient();`
+
+3. Fazer o export das functions do módulo `database.js`
+
+```javascript
+export default {
+  query,
+  getNewClient,
+};
+```
+
+4. O módulo completo fica dessa forma agora:
+
+```javascript
+import { Client } from "pg";
+
+async function query(queryObject) {
+  let client;
+  try {
+    client = await getNewClient();
+    const result = await client.query(queryObject);
+    return result;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  } finally {
+    await client.end();
+  }
+}
+
+async function getNewClient() {
+  const client = new Client({
+    host: process.env.POSTGRES_HOST,
+    port: process.env.POSTGRES_PORT,
+    user: process.env.POSTGRES_USER,
+    database: process.env.POSTGRES_DB,
+    password: process.env.POSTGRES_PASSWORD,
+    ssl: getSSLValues(),
+  });
+
+  await client.connect();
+  return client;
+}
+
+export default {
+  query,
+  getNewClient,
+};
+
+function getSSLValues() {
+  if (process.env.POSTGRES_CA) {
+    return {
+      ca: process.env.POSTGRES_CA,
+    };
+  }
+
+  return process.env.NODE_ENV === "production" ? true : false;
+}
+```
+
+### Agora no /migrations/index.js, podemos importa database.js e usar o `getNewClient()`
+
+1. Substituir `databaseUrl: process.env.DATABASE_URL,` pelo novo método criado `getNewClient()`
+
+2. Declarar variável dbClient:  
+   `const dbClient = await database.getNewClient();`
+
+3. Utilizar a variável `dbClient` para compor o objeto `defaultMigrationsOptions`
+
+```javascript
+const defaultMigrationsOptions = {
+dbClient: dbClient,
+dryRun: true,
+...
+}
+```
+
+4. Pelo fato de assumirmos a responsabilidade de abrir a conexão com o banco de dados **(dbClient)**, precisamos implementar o fechamento da conexão para não cair no erro: **_Another migration is already running_**.
+
+Tanto na verificação de ser GET quanto POST, após a execução da função migrationRunner, devemos adicionar o fechamento da conexão `await dbClient.end();`
+
+**Exemplo:**
+
+```javascript
+if (request.method === "GET") {
+    const pendingMigrations = await migrationRunner(defaultMigrationsOptions);
+    await dbClient.end(); // aqui
+    ...
+  }
+
+  if (request.method === "POST") {
+    const migratedMigrations = await migrationRunner({
+      ...defaultMigrationsOptions,
+      dryRun: false,
+    });
+    await dbClient.end(); // aqui
+    ...
+  }
+```
+
+### /migration/index.js completo
+
+```javascript
+import migrationRunner from "node-pg-migrate";
+import { join } from "node:path";
+import database from "infra/database.js";
+
+export default async function migrations(request, response) {
+  const dbClient = await database.getNewClient();
+
+  const defaultMigrationsOptions = {
+    dbClient: dbClient,
+    dryRun: true,
+    dir: join("infra", "migrations"),
+    direction: "up",
+    verbose: true,
+    migrationsTable: "pgmigrations",
+  };
+
+  if (request.method === "GET") {
+    const pendingMigrations = await migrationRunner(defaultMigrationsOptions);
+    await dbClient.end();
+    return response.status(200).json(pendingMigrations);
+  }
+
+  if (request.method === "POST") {
+    const migratedMigrations = await migrationRunner({
+      ...defaultMigrationsOptions,
+      dryRun: false,
+    });
+    await dbClient.end();
+    if (migratedMigrations.length > 0) {
+      return response.status(201).json(migratedMigrations);
+    }
+    return response.status(200).json(migratedMigrations);
+  }
+
+  return response.status(405).end();
+}
+```
+
+### database.js completo
+
+```javascript
+import { Client } from "pg";
+
+async function query(queryObject) {
+  let client;
+  try {
+    client = await getNewClient();
+    const result = await client.query(queryObject);
+    return result;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  } finally {
+    await client.end();
+  }
+}
+
+async function getNewClient() {
+  const client = new Client({
+    host: process.env.POSTGRES_HOST,
+    port: process.env.POSTGRES_PORT,
+    user: process.env.POSTGRES_USER,
+    database: process.env.POSTGRES_DB,
+    password: process.env.POSTGRES_PASSWORD,
+    ssl: getSSLValues(),
+  });
+
+  await client.connect();
+  return client;
+}
+
+export default {
+  query,
+  getNewClient,
+};
+
+function getSSLValues() {
+  if (process.env.POSTGRES_CA) {
+    return {
+      ca: process.env.POSTGRES_CA,
+    };
+  }
+
+  return process.env.NODE_ENV === "production" ? true : false;
+}
+```
