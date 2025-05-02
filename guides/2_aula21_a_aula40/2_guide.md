@@ -866,6 +866,12 @@ Esse comando ajuda a não precisar ficar colocando sempre o `origin` nos comando
 
 # Dia 27
 
+### Merge
+
+- O git possui duas formas de merge, o `Fast-Forward` e o `3-Way Merge`
+
+- Target Branch (Branch Alvo) e Font Branch (Branch Fonte). a branch que estamos é a branch alvo.
+
 #### Dicas
 
 - Como deletar branches?
@@ -874,3 +880,9 @@ Esse comando ajuda a não precisar ficar colocando sempre o `origin` nos comando
   - Quando usamos o `-d` o git avalia se o conteúdo da branch que será deletada foi mesclada com a branch principal. Caso não tenha sido, a deleção não é realizada.
 
   - Caso queira forçar a deleção, basta usar o `-D` maiúsculo.
+
+  - **Importante**, sempre que uma branch é deletada, é retornado o hash do último commit da mesma, por exemplo (07d175c). Se a branch foi excluída por engano, podemos foltar o HEAD para esse commit novamente: `git checkout 07d175c`, log em seguida fazer que o mesmo aponte para uma branch: `git checkou -b fix-migration-endpoint`. Para fazer os dois comandos em um só, podemos fazer: `git checkout -b fix-migration-endpoint 07d175c`
+
+  - **Importante**, o git tem uma política de limpeza [Garbage Collector - git-gc](https://git-scm.com/docs/git-gc) que só deixa esses commits pendurados sem branch por 14 dias. No entando esse tempo pode ser configurado.
+
+  - E no cenário de eu não ter registrado o hash do commit no momento que deletei a branch? Existe um comando no git, que registra tudo que acontece com os comando git: `git reflog` **_reference log_**
