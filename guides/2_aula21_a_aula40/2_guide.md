@@ -852,7 +852,7 @@ Esse comando ajuda a não precisar ficar colocando sempre o `origin` nos comando
 
 - No promeiro momento, vamos desabilitar essa opção, assim, conseguiremos realizar o `curl` contra o endpoint `https://clone-tabnews-git-fix-migration-endpoint-alx0594s-projects.vercel.app/api/v1/status` normalmente via terminal.
 
-**Tratamento do response como JSON no terminal**
+**Tratamento do response como JSON no terminal usando Python**
 
 - No comando `curl -s https://clone-tabnews-git-fix-migration-endpoint-alx0594s-projects.vercel.app/api/v1/status` adicionar um pipe (|) no final seguido do comando `python -m json.tool`
 
@@ -860,3 +860,17 @@ Esse comando ajuda a não precisar ficar colocando sempre o `origin` nos comando
   `curl -s https://clone-tabnews-git-fix-migration-endpoint-alx0594s-projects.vercel.app/api/v1/status | python -m json.tool`
 
 - No linux, usar **python3**
+
+**Tratamento do response como JSON no terminal usando JQ**
+`curl -s https://clone-tabnews-git-fix-migration-endpoint-alx0594s-projects.vercel.app/api/v1/status | jq`
+
+# Dia 27
+
+#### Dicas
+
+- Como deletar branches?
+  `git branch -d <nome-da-branch>`
+
+  - Quando usamos o `-d` o git avalia se o conteúdo da branch que será deletada foi mesclada com a branch principal. Caso não tenha sido, a deleção não é realizada.
+
+  - Caso queira forçar a deleção, basta usar o `-D` maiúsculo.
