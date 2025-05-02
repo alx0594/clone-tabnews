@@ -870,7 +870,18 @@ Esse comando ajuda a não precisar ficar colocando sempre o `origin` nos comando
 
 - O git possui duas formas de merge, o `Fast-Forward` e o `3-Way Merge`
 
-- Target Branch (Branch Alvo) e Font Branch (Branch Fonte). a branch que estamos é a branch alvo.
+- Target Branch (Branch Alvo) do merge e Font Branch (Branch Fonte) com as alterações para realizar o marge.
+
+- Dessa forma, a branch `main` (que estamos atualmente) é nossa target branch (HEAD) e a branch fix-migration-endpoint é nossa font branch. Logo, para fazer o merge, basta executar: `git merge fix-migration-endpoint`
+
+![alt text](images/merge_local_fast_forward.png)
+
+### Ajustando banco de dados na Neon
+
+- A Neon também será nosso banco de dados para produção, logo, precisamos ajustar o que era da DigitalOcean na Vercel para apontar para Neon.
+
+1. Na Neon, alterar database name de alxtab para production.
+2. Atualizar variáveis de ambiente de production na Vercel.
 
 #### Dicas
 
@@ -886,3 +897,30 @@ Esse comando ajuda a não precisar ficar colocando sempre o `origin` nos comando
   - **Importante**, o git tem uma política de limpeza [Garbage Collector - git-gc](https://git-scm.com/docs/git-gc) que só deixa esses commits pendurados sem branch por 14 dias. No entando esse tempo pode ser configurado.
 
   - E no cenário de eu não ter registrado o hash do commit no momento que deletei a branch? Existe um comando no git, que registra tudo que acontece com os comando git: `git reflog` **_reference log_**
+
+  - **Verificando log com linha do tempo**: `git log --graph`
+
+# Dia 28
+
+### Estratégias de branch
+
+1. Trunk-based Development
+   Sempre integrar o código na branch `main`
+
+2. **Feature Branch**
+   Para cada novo recurso ou correção de bug, criar e desenvolver na `feature branch` e depois fazer o merge para a branch principal. A branch `main` sempre precisa estar pronta para ir para `produção`.
+
+   ![alt text](images/feature-branch.png)
+
+3. Git Flow
+   Segundo o próprio idealista do modelo Git Flow, essa não é a melhor abordagem para o atual cenário de desenvolvimento, principalmente pelo fato das aplicações serem cada vez mais desenvolvidas para web e com frequência de atualização. Segundo o próprio autor, `Git Flow` se tornou um modelo legado.
+
+   ![alt text](images/git_workflow.png)
+
+4. Trunk-base Development
+
+   ![alt text](images/trunk-based-2.png)
+
+**Usaremos `Feature Branch`**
+
+# Dia 29
