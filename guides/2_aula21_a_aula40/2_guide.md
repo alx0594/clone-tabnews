@@ -721,3 +721,142 @@ function getSSLValues() {
   return process.env.NODE_ENV === "production" ? true : false;
 }
 ```
+
+# Dia 26
+
+### Branches Git
+
+- 3º Nível de exemplo de compreensão
+
+![alt text](images/git_branches_head.png)
+
+### Criando banco de dados para Homologação.
+
+1. Entrar onde o banco de dados está hospedado: https://console.neon.tech/
+
+#### Via Project Dasboard
+
+1. Em `Project` > `Dashboard`;
+2. Clique em `Connect` > No modal Aberto, clique no menu de seleção `Database`, e selecione `create new database`
+3. Database name: `staging`  
+   Obs.: Por limitações do plano gratuíto, não podemos criar novo projeto, então optou-se por criar novo banco de dados.
+
+#### Via Project branch
+
+1. Em `Branch` > `Overview`
+2. Logo abaixo das informações sobre a branch, há um menu com três abas: Computes|Roles & Database|Child branches;
+3. Clique em Roles & Database, e depois em Add database.
+4. Database name: `staging`  
+   Obs.: Por limitações do plano gratuíto, não podemos criar novo projeto, então optou-se por criar novo banco de dados.
+
+### Atualizando Vercel, ambiente `preview`
+
+1. Vercel > Projects > clone-tabnews > settings > environment variables > `adicionar variáveis` copiadas do novo Database criado na Neon.
+
+### Criando nova branch no repositório clone-tabnews
+
+`fix/migrations-endpoint`  
+Nesta branch trabalharemos a questão de não fechar as conexões com o banco de dados quado são realizadas requisições para o endpoint `/migrations` com métodos `HTTP` diferentes de `GET` e `POST`.
+
+### Replicando e corrigindo o bug do enpoint /migrations
+
+> **Cenário atual:** ao realizar requisições ao endpoint `/migrations` usando métodos HTTP diferentes de GET e POST, estão abrindo conexões com o banco de dados e não estão fechando.
+
+#### Solução
+
+1. Verificar quais são os métodos HTTP vindos da requisição. Se for diferente dos métodos permitidos (GET e POST), retornar status code 405. E nisso, nem entrar no passo de abrir conexão com o banco de dados.
+
+```javascript
+const allowedMethods = ["GET", "POST"];
+if (!allowedMethods.includes(request.method)) {
+  return response.status(405).json({
+    error: `Method ${request.method} not allowed`,
+  });
+}
+```
+
+2. Retirar a responsabilidade dos métodos `GET` e `POST` de fechar a conexão com o banco de dados e atribuir a um bloco `finally`
+
+**Portanto, neste momento do curso, o controller migrations/index.js está conforme abaixo. Logo será refatorado, separando as responsabilidades em seus devidos módulos:**
+
+```javascript
+import migrationRunner from "node-pg-migrate";
+import { join } from "node:path";
+import database from "infra/database.js";
+
+export default async function migrations(request, response) {
+  const allowedMethods = ["GET", "POST"];
+  if (!allowedMethods.includes(request.method)) {
+    return response.status(405).json({
+      error: `Method ${request.method} not allowed`,
+    });
+  }
+  let dbClient;
+  try {
+    dbClient = await database.getNewClient();
+
+    const defaultMigrationsOptions = {
+      dbClient: dbClient,
+      dryRun: true,
+      dir: join("infra", "migrations"),
+      direction: "up",
+      verbose: true,
+      migrationsTable: "pgmigrations",
+    };
+
+    if (request.method === "GET") {
+      const pendingMigrations = await migrationRunner(defaultMigrationsOptions);
+      return response.status(200).json(pendingMigrations);
+    }
+
+    if (request.method === "POST") {
+      const migratedMigrations = await migrationRunner({
+        ...defaultMigrationsOptions,
+        dryRun: false,
+      });
+      if (migratedMigrations.length > 0) {
+        return response.status(201).json(migratedMigrations);
+      }
+      return response.status(200).json(migratedMigrations);
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  } finally {
+    await dbClient.end();
+  }
+}
+```
+
+#### Dicas
+
+**Deixar branch rastreável local/origin**
+
+`git push --set-upstream origin fix/migration-endpoint`
+
+Esse comando ajuda a não precisar ficar colocando sempre o `origin` nos comandos de push, por exemplo, `git push origin fix/migration-endpoint`. Após o comando `--set-upstream origin`, basta usar apenas git push e as alterações serão empurradas para o repositório origin (remoto)
+
+**Deploy manual na Vercel**
+
+1. Acesse a aba Deployments.
+2. Clique no botão de [...] para abrir as opções.
+3. Selecione Create Deployment.
+4. Selecionar a branch, no caso `fix-migration-endpoint`
+5. O ambiente `preview` será selecionado automaticamente.
+
+**Deployment Protection**
+
+- https://vercel.com/alx0594s-projects/clone-tabnews/settings/deployment-protection
+
+- Deployment protection é uma proteção implementada pela Vercel que grante que os visitantes destejam conectados ao Vercel e sejma membros da equipe.
+
+- No promeiro momento, vamos desabilitar essa opção, assim, conseguiremos realizar o `curl` contra o endpoint `https://clone-tabnews-git-fix-migration-endpoint-alx0594s-projects.vercel.app/api/v1/status` normalmente via terminal.
+
+**Tratamento do response como JSON no terminal**
+
+- No comando `curl -s https://clone-tabnews-git-fix-migration-endpoint-alx0594s-projects.vercel.app/api/v1/status` adicionar um pipe (|) no final seguido do comando `python -m json.tool`
+
+- Comando completo:
+  `curl -s https://clone-tabnews-git-fix-migration-endpoint-alx0594s-projects.vercel.app/api/v1/status | python -m json.tool`
+
+- No linux, usar **python3**
