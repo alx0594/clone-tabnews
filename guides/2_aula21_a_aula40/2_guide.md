@@ -924,3 +924,62 @@ Esse comando ajuda a não precisar ficar colocando sempre o `origin` nos comando
 **Usaremos `Feature Branch`**
 
 # Dia 29
+
+**Cenário atual:** Antes de executar a aplicação, queremos subir o banco de dados e executar as migrations.  
+Para tanto, a primeira abordagem foi: `"dev": "npm run services:up && npm run migration:up && next dev"`, e acabou gerando um problema.
+O comando para executar as migrations inicia a execução antes do banco de dados estar totalmente disponível. Para solucionar esse apontamento, vamos criar um script js.
+
+### Criando Script JS
+
+1. Na pasta `infra`, criar pasta `scripts`
+2. Dentro da pasta scripts, criar script `wait-for-postgres.js`
+3. No `package.json`, criar execução do script: `"wait-for-posgres": "node infra/scripts/wait-for-postgres.js"`
+4. Primeiro comando no script para testes:
+   console.log("🔴Aguardando Postgres aceitar conexões");
+5. Execução: `npm run wait-for-postgres`
+
+**Melhorando wait-for-posgres.js**
+
+1. No infra/compose.yaml, definir qual será o nome do container:
+   `container_name: "postgres-dev"`
+2. Para executar processos dentro de scripts JS, precisamos usar a dependência child_process. No script `wait-for-postres.js`, importar `require("node:child_process")` Não vamos usar import, pois esse arquivo não será transpilado.
+3. No import, usaremos a `desestruturação`, trazendo o método `exec` para fora: `const { exec } = require("node:child_process");`
+
+**Script completo**
+
+```javascript
+const { exec } = require("node:child_process");
+
+function checkPosgres() {
+  exec("docker exec postgres-dev pg_isready --host localhost", handleReturn); //handleReturn -> Função de callback
+
+  function handleReturn(error, stdout, stderr) {
+    // handleReturn -> Função de callback
+    if (stdout.search("accepting connections") === -1) {
+      process.stdout.write("."); // adicionando . na saída padrão stdout
+      checkPosgres(); // recursividade
+      return;
+    }
+    console.log("\n🟢 Postgres está pronto e aceitando conexões\n");
+  }
+}
+
+process.stdout.write("\n\n🔴 Aguardando Postgres aceitar conexões");
+checkPosgres();
+```
+
+### Dicas
+
+### Saídas de programas
+
+**stdout:** Standard Output, usado para exibir a saída normal/padrão de um programa.
+
+**stderr:** Standard Error, usado para saída de mensagem de erro.
+
+### Docker prune
+
+Comando docker para deletar tudo e iniciar do zero: `docker system prune -a`
+
+**Curiosidade**
+Are you sure you want to continue? [y/N]  
+A letra que fica em maiúsca é sempre a default caso apertemos enter.
