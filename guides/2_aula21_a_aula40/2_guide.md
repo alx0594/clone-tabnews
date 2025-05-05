@@ -945,19 +945,46 @@ O comando para executar as migrations inicia a execução antes do banco de dado
 2. Para executar processos dentro de scripts JS, precisamos usar a dependência child_process. No script `wait-for-postres.js`, importar `require("node:child_process")` Não vamos usar import, pois esse arquivo não será transpilado.
 3. No import, usaremos a `desestruturação`, trazendo o método `exec` para fora: `const { exec } = require("node:child_process");`
 
-**Script completo**
+**O que esse script faz?**
+
+- Ele verifica se o banco de dados Postgres está pronto para aceitar conexões, usando o comando Docker. Se ainda não estiver pronto, ele espera um pouco e tenta de novo.
+
+- **Callback**
+  `exec("docker exec postgres-dev pg_isready --host localhost", handleReturn);`
+
+  1. A função exec(...) executa um comando no terminal.
+  2. Esse comando vai rodar de forma assíncrona — ou seja, ele não para o código, ele vai rodar em segundo plano.
+  3. Quando o comando terminar (pode ser rápido ou demorar), ele chama a função handleReturn com os resultados do comando.
+     - Isso é o callback: a função handleReturn é chamada quando o comando terminar.
+
+- **Recursividade**
+  Recursividade é quando uma função **chama ela mesma**.
+
+  ```javascript
+  if (stdout.search("accepting connections") === -1) {
+    process.stdout.write(".");
+    checkPosgres(); // Chama de novo a função checkPosgres()
+    return;
+  }
+  ```
+
+  - Se o banco de dados **ainda não está pronto** (a frase “accepting connections” não apareceu), ele **chama de novo a própria função** `checkPosgres`.
+  - Isso continua até o Postgres finalmente responder que está pronto.
+
+  **Script completo**
 
 ```javascript
 const { exec } = require("node:child_process");
 
 function checkPosgres() {
-  exec("docker exec postgres-dev pg_isready --host localhost", handleReturn); //handleReturn -> Função de callback
+  exec("docker exec postgres-dev pg_isready --host localhost", handleReturn);
+  // Depois que terminar a execução **docker exec postgres-dev pg_isready --host localhost**, chame a função de callback **handleReturn**
 
   function handleReturn(error, stdout, stderr) {
     // handleReturn -> Função de callback
     if (stdout.search("accepting connections") === -1) {
       process.stdout.write("."); // adicionando . na saída padrão stdout
-      checkPosgres(); // recursividade
+      checkPosgres(); // Chama de novo a função checkPosgres()
       return;
     }
     console.log("\n🟢 Postgres está pronto e aceitando conexões\n");
@@ -969,6 +996,11 @@ checkPosgres();
 ```
 
 ### Dicas
+
+### Função callback
+
+Uma **função de callback** é como dizer:  
+**"Quando você terminar, me chame!"**
 
 ### Saídas de programas
 
