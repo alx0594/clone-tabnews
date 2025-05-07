@@ -1033,16 +1033,33 @@ Decidido, a princípio, que o melhor local para ter o `orchestrator` é na raiz 
 
 4. Instalar a dependência [async-retry](https://www.npmjs.com/package/async-retry) responsável por fazer a retentativa até receber o retorno 200: `npm install async-retry@1.3.3`
 
-5. Em `jest.config.js`, ajustar o tempo de espera dos tests do Jest. `testTimeout: 6000, //ms`
+5. Implementar o `orchestrator.js` conforme a baixo:
 
 ```javascript
-const jestConfig = createJestConfig({
-  moduleDirectories: ["node_modules", "<rootDir>"],
-  testTimeout: 6000, //ms
-});
+import retry from "async-retry";
+
+async function waitForAllServices() {
+  await waitForWebServer();
+
+  async function waitForWebServer() {
+    return retry(fetchStatusPage, {
+      retries: 100,
+      maxTimeout: 1000,
+    });
+
+    async function fetchStatusPage() {
+      const response = await fetch("http://localhost:3000/api/v1/status");
+      const responsebody = await response.json();
+    }
+  }
+}
+
+export default {
+  waitForAllServices,
+};
 ```
 
-**orchestrator.js**
+6. Nos testes de `status` get.test.js, chamar o `orchestrator.js` antes das execuções dos testes
 
 ```javascript
 import orchestrator from "tests/orchestrator.js";
@@ -1052,7 +1069,25 @@ beforeAll(async () => {
 });
 ```
 
-**get.test.js**
+7. Nos testes de **migrations** `get.test.js` e `post.test.js` chamar o `orchestrator.js` antes das execuções:
+
+```javascript
+import database from "infra/database.js";
+import orchestrator from "tests/orchestrator.js";
+
+beforeAll(async () => {
+  await orchestrator.waitForAllServices();
+  await database.query("DROP schema public cascade; create schema public");
+});
+```
+
+**Para tornar os testes mais recilientes, ajustamos o timeout do jest, para não ser interrompido pelo valor default de 5 segundos**
+
+8. Em `jest.config.js`, ajustar o tempo de espera dos tests do Jest. `testTimeout: 6000, //ms`
+
+9. No `package.json` ajustar script de `test`, removendo a execução do script `wait-for-postgres` Agora fica conforme abaixo:
+
+`"test": "npm run services:up && concurrently -n next,jest --hide next -k -s command-jest \"next dev\" \"jest --runInBand\"",`
 
 ### Dicas
 
@@ -1085,3 +1120,5 @@ A letra que fica em maiúsca é sempre a default caso apertemos enter.
 **code 130** `SIGINT` - Signal Interrupt - Interrupção de Sinal. Por exemplo, interromper uma execução com o `control + c`.
 
 # Dia 30
+
+Ponto de parada: https://curso.dev/web/estabilizar-npm-test-revisao-2
