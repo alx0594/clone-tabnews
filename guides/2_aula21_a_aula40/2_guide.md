@@ -995,6 +995,65 @@ process.stdout.write("\n\n🔴 Aguardando Postgres aceitar conexões");
 checkPosgres();
 ```
 
+### Execução dos Testes
+
+**Cenário atual:** Não conseguimos executar o comando `npm test` para os testes de migração sem antes subir o banco de dados e executar as migrations. Iremos trabalhar na automação para execução dos testes.
+
+1. No package.json, atualizar o comando de **test** `"test": "npm run services:up && npm run wait-for-postgres && jest --runInBand",`
+
+   - Só que neste ponto temos uma questão. Também precisamos que o servidor de aplicação esteja em execução para realizarmos o `fetch`. Por conta disso, iremos instalar uma dependência de concorrência `concurrently` e posteriormente orquestrar que os testes sejam executados apenas quando o servidor da aplicação esteja disponível.
+
+2. Instalar dependência de [concorrência](https://www.npmjs.com/package/concurrently): `npm install concurrently@8.2.2`
+
+**Primeira abordagem**
+
+```javascript
+"test": "npm run services:up && npm run wait-for-postgres && concurrently -n next,jest --hide next -k -s command-jest \"next dev\" \"jest --runInBand\"",
+```
+
+Estamos executando o script de `service:up`, em seguida o script `wait-for-postres`, ou seja, subimos o banco de dados e executamos a migration. Agora o próximo estágio é executar de forma concorrente o `next` e o `jest`. Entendendo concurrently e os parâmetros:
+
+- `-n` nome dos serviços que serão executados em paralelos `next,jest` Caso esse parâmetro não seja definido, será retornado [0], [1], [...] na saída dos comandos.
+
+- `--hide` para esconder a saída do `next` pois o que importa para nós é a saída do `jest`
+
+- `-k` kill do processo do `concurrently` para não ficar prendendo o terminal.
+
+- `-s` status de `success` de acordo com status retornado pelo jest `command-jest`
+
+- `\"next dev\" \"jest --runInBand\"` os serviços que serão executados, no caso `next` e `jest`
+
+#### Fazendo orquestrador para os testes
+
+Decidido, a princípio, que o melhor local para ter o `orchestrator` é na raiz da pasta tests.
+
+2. Na pasta tests, criar módulo `orchestrator.js`
+
+3. No testes de get status, `get.test.js` importar o médulo **orchestrator.js** `import orchestrator from "tests/orchestrator.js";`
+
+4. Instalar a dependência [async-retry](https://www.npmjs.com/package/async-retry) responsável por fazer a retentativa até receber o retorno 200: `npm install async-retry@1.3.3`
+
+5. Em `jest.config.js`, ajustar o tempo de espera dos tests do Jest. `testTimeout: 6000, //ms`
+
+```javascript
+const jestConfig = createJestConfig({
+  moduleDirectories: ["node_modules", "<rootDir>"],
+  testTimeout: 6000, //ms
+});
+```
+
+**orchestrator.js**
+
+```javascript
+import orchestrator from "tests/orchestrator.js";
+
+beforeAll(async () => {
+  await orchestrator.waitForAllServices();
+});
+```
+
+**get.test.js**
+
 ### Dicas
 
 ### Função callback
@@ -1008,6 +1067,10 @@ Uma **função de callback** é como dizer:
 
 **stderr:** Standard Error, usado para saída de mensagem de erro.
 
+### Emojis VSCode no Windows.
+
+- Atalho: `Win` + `.`
+
 ### Docker prune
 
 Comando docker para deletar tudo e iniciar do zero: `docker system prune -a`
@@ -1015,3 +1078,10 @@ Comando docker para deletar tudo e iniciar do zero: `docker system prune -a`
 **Curiosidade**
 Are you sure you want to continue? [y/N]  
 A letra que fica em maiúsca é sempre a default caso apertemos enter.
+
+### Exit code
+
+**echo $?** representa o exit code do último processo que foi encerrado.
+**code 130** `SIGINT` - Signal Interrupt - Interrupção de Sinal. Por exemplo, interromper uma execução com o `control + c`.
+
+# Dia 30
