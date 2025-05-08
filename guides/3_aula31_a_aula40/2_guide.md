@@ -65,7 +65,33 @@ jobs:
 
 ### Criar Worflow para o Lint
 
-1. Criar branch ``
+1. Criar branch `lint-format-action`
+2. Criar workflow: `linting.yaml`
+3. No `package.json`, alterar o nome do script de lint para: `lint:prettier:check` e `lint:prettier:fix`
+
+**Workflow de Lint**
+
+```yaml
+name: Linting Tests
+
+on: pull_request
+
+jobs:
+  prettier:
+    name: Prettier
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "lts/hydrogen"
+
+      - run: npm ci
+
+      - run: npm run lint:prettier:check
+```
 
 #### Dicas
 
