@@ -1,5 +1,7 @@
 # Dia 31
 
+## Primeira Pista lenta
+
 ### Criar processo de CI com GitHub Actions.
 
 1. Criar nova branch chamada `actions`
@@ -9,7 +11,25 @@
 **Workflow de Tests**
 
 ```yaml
+name: Automated Tests
 
+on: pull_request
+
+jobs:
+  jest:
+    name: Jest Ubuntu
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "lts/hydrogen"
+
+      - run: npm ci
+
+      - run: npm test
 ```
 
 #### Configurar Regra de permitir merge apenas quando a action de teste der sucesso
@@ -30,7 +50,7 @@
 
 ![alt text](images/merge_disable.png)
 
-#### Dicas dia 31
+#### Dicas
 
 **Qual a diferença entre `npm ci` e `npm install`**
 
@@ -40,3 +60,13 @@
 **Executando comando git de uma só vez**
 
 `git add -A && git commit --amend --no-edit && git push -f`
+
+## Segunda Pista Lenta.
+
+### Criar Worflow para o Lint
+
+#### Dicas
+
+**pré-formatador de estilização:** Editor Config (.editorconfig)
+**pós-formatador de estilização:** Prettier (Estilização após salvar o arquivo com o código)
+**pós-formatador de qualidade:** ESLint.
