@@ -65,6 +65,8 @@ jobs:
 
 ### Criar Worflow para o Lint
 
+1. Criar branch ``
+
 #### Dicas
 
 **pré-formatador de estilização:** Editor Config (.editorconfig)
