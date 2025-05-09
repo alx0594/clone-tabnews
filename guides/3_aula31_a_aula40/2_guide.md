@@ -65,8 +65,51 @@ jobs:
 
 ### Criar Worflow para o Lint
 
+1. Criar branch `lint-format-action`
+2. Criar workflow: `linting.yaml`
+3. No `package.json`, alterar o nome do script de lint para: `lint:prettier:check` e `lint:prettier:fix`
+
+**Workflow de Lint**
+
+```yaml
+name: Linting Tests
+
+on: pull_request
+
+jobs:
+  prettier:
+    name: Prettier
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "lts/hydrogen"
+
+      - run: npm ci
+
+      - run: npm run lint:prettier:check
+```
+
+### Branch Protection para o Prettier
+
+1. Settings > Rules > Rulesets
+2. Entrar na Rulset que já temos para branch main.
+3. Em `Require status checks to pass` adicionar Job: `Prettier`.
+4. `Save changes`
+
+![alt text](images/status_chek_prettier.png)
+
 #### Dicas
+
+#### Formatadores
 
 **pré-formatador de estilização:** Editor Config (.editorconfig)
 **pós-formatador de estilização:** Prettier (Estilização após salvar o arquivo com o código)
 **pós-formatador de qualidade:** ESLint.
+
+##### Comando para mudar só a data do commit
+
+`git commit --amend --date=now`
