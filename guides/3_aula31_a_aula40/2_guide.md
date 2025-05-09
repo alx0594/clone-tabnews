@@ -137,6 +137,34 @@ Facilita e abstrai o uso do ESLint.
 **Para o ESLint entender como o Jest funciona, vamos precisar instalar a lib `eslint-plugin-jest`**
 
 1. `npm install -D eslint-plugin-jest@28.6.0`
+2. configurar `eslintrc.json`
+
+   ```
+   {
+   "extends": [
+    "eslint:recommended",
+    "plugin:jest/recommended",
+    "next/core-web-vitals"
+   ]
+   }
+   ```
+
+3. Agora executando o comando: `npm run lint:eslint:check` não teremos mais apontamentos relacionados a forma como o Jest trabalha com seus componentes, onde conseguimos usar sem imports específicos.
+
+4. Para que não acha conflitos com o prettier, instalar: `npm i -D eslint-config-prettier@9.1.0`
+
+5. Adicionar prettier na lista do `extends`
+
+   ```
+   {
+   "extends": [
+    "eslint:recommended",
+    "plugin:jest/recommended",
+    "next/core-web-vitals",
+    "prettier"
+   ]
+   }
+   ```
 
 ### Código
 
@@ -172,6 +200,6 @@ Erro de compartibilidade das versões instaladas automaticamente pelo Next, ent�
 
 5. Rodar: git commit -m 'adds `lint:eslint:check` script with `ESLint`'
 
-6. Corrigir os erros encontrados pelo ESLint
+6. **Corrigir os erros/apontamentos encontrados pelo ESLint**
 
 7. Rodar: git commit -m 'fix `eslint` linting'
