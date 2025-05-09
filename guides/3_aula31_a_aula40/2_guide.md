@@ -93,8 +93,23 @@ jobs:
       - run: npm run lint:prettier:check
 ```
 
+### Branch Protection para o Prettier
+
+1. Settings > Rules > Rulesets
+2. Entrar na Rulset que já temos para branch main.
+3. Em `Require status checks to pass` adicionar Job: `Prettier`.
+4. `Save changes`
+
+![alt text](images/status_chek_prettier.png)
+
 #### Dicas
+
+#### Formatadores
 
 **pré-formatador de estilização:** Editor Config (.editorconfig)
 **pós-formatador de estilização:** Prettier (Estilização após salvar o arquivo com o código)
 **pós-formatador de qualidade:** ESLint.
+
+##### Comando para mudar só a data do commit
+
+`git commit --amend --date=now`
