@@ -166,7 +166,101 @@ Facilita e abstrai o uso do ESLint.
    }
    ```
 
+6. Nas Rulsets, adicionar Job Eslint como obrigatório na checagem de status.
+
+### Iniciar correções apontadas pelo ESLINT
+
+```
+./infra/database.js
+31:1  Warning: Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+./infra/migrations/1746050980513_test-migrations.js
+5:15  Error: 'pgm' is defined but never used.  no-unused-vars
+7:17  Error: 'pgm' is defined but never used.  no-unused-vars
+
+./infra/scripts/wait-for-postgres.js
+7:40  Error: 'stderr' is defined but never used.  no-unused-vars
+
+./pages/api/v1/status/index.js
+4:7  Error: 'variavelEsquecida' is defined but never used.  no-unused-vars
+
+./tests/orchestrator.js
+22:1  Warning: Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
+```
+
+1. Corrigindo `infra/database`
+   **Adicionar as funções em uma variável e só depois exportá-la.**
+
+   ```javascript
+   const database = {
+     query,
+     getNewClient,
+   };
+
+   export default database;
+   ```
+
+2. Corrigindo `/tests/orchestrator.js`
+
+```javascript
+const orchestrator = {
+  waitForAllServices,
+};
+
+export default orchestrator;
+```
+
+3. Corrigindo apontamentos dos arquivos de migrations (que futuramente serão excluídos)
+
+   - Basta clicar na lâmpada que aprece ao passar o mouse no apontamento e clicar na opção de igonrar os apontamentos. Será adicionados comentários conforme abaixo:
+
+   ```
+   /* eslint-disable camelcase */
+   /* eslint-disable  no-unused-vars */
+   ```
+
+4. Ao executar o comando `npm run lint:eslint:check` agora deverá retornar: **✔ No ESLint warnings or errors**
+
 ### Código
+
+**Workflow com os lintings**
+
+name: Linting Tests
+
+on: pull_request
+
+jobs:
+prettier:
+name: Prettier
+runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "lts/hydrogen"
+
+      - run: npm ci
+
+      - run: npm run lint:prettier:check
+
+eslint:
+name: Eslint
+runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "lts/hydrogen"
+
+      - run: npm ci
+
+      - run: npm run lint:eslint:check
 
 ### Dicas
 
