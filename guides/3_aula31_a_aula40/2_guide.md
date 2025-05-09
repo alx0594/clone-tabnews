@@ -102,6 +102,8 @@ jobs:
 
 ![alt text](images/status_chek_prettier.png)
 
+> Na aba de checks da Pull Request tem todos os checkes que a Pull Request passou. Exemplo: `https://github.com/alx0594/clone-tabnews/pull/18/checks`
+
 #### Dicas
 
 #### Formatadores
@@ -113,3 +115,18 @@ jobs:
 ##### Comando para mudar só a data do commit
 
 `git commit --amend --date=now`
+
+## Terceira Pista Lenta.
+
+### Configurando ESLint
+
+**ESLint:** encontra e conserta problemas no código JavaScript.
+[ESLint](https://eslint.org/docs/latest/rules)
+
+**ESLint Integração com NEXT.js**
+[NextJS e ESLint](https://nextjs.org/docs/pages/api-reference/config/eslint)
+Facilita e abstrai o uso do ESLint.
+
+### Código
+
+### Dicas
