@@ -127,6 +127,51 @@ jobs:
 [NextJS e ESLint](https://nextjs.org/docs/pages/api-reference/config/eslint)
 Facilita e abstrai o uso do ESLint.
 
+1. Criar nova branch `git checkout -b lint-quality-cations`
+2. Adicionar script para `ESLint` no **package.json** `"lint:eslint:check": "next lint --dir .",`
+3. Executar lint: `npm run lint:eslint:check`
+4. Após execução, rodando de forma **scritch**, o arquivo `.eslintrc.json` foi criado de forma automática.
+5. No arquivo `.eslintrc.json` adicionar `eslint:recommended` em `extends`, criando um array nesse parâmetro:
+   `"extends": ["eslint:recommended", "next/core-web-vitals"]`
+
+**Para o ESLint entender como o Jest funciona, vamos precisar instalar a lib `eslint-plugin-jest`**
+
+1. `npm install -D eslint-plugin-jest@28.6.0`
+
 ### Código
 
 ### Dicas
+
+#### Instalar ESLint no VSCode
+
+1. Em extensões do VSCode, bucar por ESLINT (extensão da Microsoft).
+
+#### Apontamento ESLint:
+
+```
+next lint
+Invalid Options:
+- Unknown options: useEslintrc, extensions, resolvePluginsRelativeTo, rulePaths, ignorePath, reportUnusedDisableDirectives
+- 'extensions' has been removed.
+- 'resolvePluginsRelativeTo' has been removed.
+- 'ignorePath' has been removed.
+- 'rulePaths' has been removed. Please define your rules using plugins.
+- 'reportUnusedDisableDirectives' has been removed. Please use the 'overrideConfig.linterOptions.reportUnusedDisableDirectives' option instead.
+```
+
+**Correção**  
+Erro de compartibilidade das versões instaladas automaticamente pelo Next, então rodar o comando:
+
+1. `npm install eslint@8.57.0 eslint-config-next@14.2.4`
+
+2. Instalar `ESLint` pelos módulos do VSCode.
+
+3. Rodar: `npm i -D eslint-plugin-jest@28.6.0`
+
+4. Rodar:` npm i -D eslint-config-prettier@9.1.0`
+
+5. Rodar: git commit -m 'adds `lint:eslint:check` script with `ESLint`'
+
+6. Corrigir os erros encontrados pelo ESLint
+
+7. Rodar: git commit -m 'fix `eslint` linting'
