@@ -134,6 +134,10 @@ Facilita e abstrai o uso do ESLint.
 5. No arquivo `.eslintrc.json` adicionar `eslint:recommended` em `extends`, criando um array nesse parâmetro:
    `"extends": ["eslint:recommended", "next/core-web-vitals"]`
 
+   **eslint:recommended** de acordo com a documentação, ativa as regras que o ESLint recomenda que todos usem para evitar possíveis erros.
+
+   **eslint:all** de acordo com a [documentação](https://eslint.org/docs/latest/use/configure/configuration-files#using-predefined-configurations), habilita todas as regras fornecidas com ESLint **não é recomendado para uso em produção.**
+
 **Para o ESLint entender como o Jest funciona, vamos precisar instalar a lib `eslint-plugin-jest`**
 
 1. `npm install -D eslint-plugin-jest@28.6.0`
@@ -297,3 +301,5 @@ Erro de compartibilidade das versões instaladas automaticamente pelo Next, ent�
 6. **Corrigir os erros/apontamentos encontrados pelo ESLint**
 
 7. Rodar: git commit -m 'fix `eslint` linting'
+
+# Dia 32
