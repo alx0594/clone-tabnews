@@ -303,3 +303,42 @@ Erro de compartibilidade das versões instaladas automaticamente pelo Next, ent�
 7. Rodar: git commit -m 'fix `eslint` linting'
 
 # Dia 32
+
+## Primeira Pista Lenta
+
+- https://x.com/levelsio
+
+- https://github.com/levelsio
+
+## Segunda Pista Lenta.
+
+### Guia de commits (The Linux Kernel)
+
+- [The Kernel Linux](https://www.kernel.org/doc/html/v4.10/process/submitting-patches.html)
+
+- Tópico 3, como separar as alterações. Podemos entender patch, como commit. Logo, temos:  
+  **_Separe cada alteração lógica em um patch separado._**
+
+  > Cada commit precisa ser justificável por seus próprios méritos
+
+  Isto é, uma alteração precisa ter início, meio e fim.
+
+- Pensamento ao se fazer commit:  
+  Se for necessário desfazer um commit, quais seriam os impactos?
+
+  > Por exemplo, precisei corrigir um erro ortográfico na página Home do projeto: a palavra "menas" estava escrita incorretamente. Durante a correção, percebi que também poderia ajustar a forma como a lista de alunos era carregada. Realizei o commit e enviei as alterações para produção.
+  > No entanto, logo depois, alunos começaram a relatar que a lista de alunos não estava sendo carregada corretamente. Diante disso, foi necessário realizar um rollback para corrigir esse problema. Após a correção, fiz um novo commit e enviei o código para produção novamente. Porém, como o rollback desfez as alterações anteriores, a correção da palavra "menas" não foi incluída nesse último commit.
+  > Esse cenário demonstra a importância de separar alterações distintas em commits diferentes, garantindo que ajustes menores, como correções ortográficas, não sejam perdidos ao lidar com problemas mais complexos.
+
+- O que é uma mudança lógica?
+
+  > Na programação, uma mudança lógica pode envolver a modificação de um algoritmo ou estrutura de código para melhorar sua eficiência ou corrigir erros, sem alterar sua funcionalidade principal.
+
+## Terceira Pista Lenta.
+
+- Qual deve ser o tempo verbal de um commit?  
+  R: **Tempo verbal: Imperativo**. Exemplo: _Ajusta o bug de cadastro no backend"_; _"Adiciona um botão maior na interface"_
+
+- **Conventional Commits**: https://www.conventionalcommits.org/en/v1.0.0/
+
+# Dia 33
