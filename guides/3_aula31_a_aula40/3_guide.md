@@ -375,3 +375,16 @@ Erro de compartibilidade das versões instaladas automaticamente pelo Next, ent�
    ```
 
 9. Agora executando o comando adicionando o subject (mensagem) e o tipo permitido: `echo "feat: mensagem principal" | npx commitlint`
+
+## Segunda Pista Lenta
+
+**git rebase:** refazer a base!
+
+Da branch em questão, por exemplo, `lint-commits`, executar: `git rebase main`. Ou seja, rebase da branch `main` na branch `lint-commits`
+
+### Dicas
+
+**Comparando commits**
+
+`git diff HEAD~1 HEAD`, onde ~1 indica qual commit anterior queR comparar com o commit atual.  
+`HEAD~1` (Um commit anterior) com `HEAD` (commit atual)
