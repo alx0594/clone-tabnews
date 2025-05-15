@@ -342,3 +342,86 @@ Erro de compartibilidade das versões instaladas automaticamente pelo Next, ent�
 - **Conventional Commits**: https://www.conventionalcommits.org/en/v1.0.0/
 
 # Dia 33
+
+## Primeira Pista Lenta
+
+1. Configurar [commitlint](https://commitlint.js.org/)
+2. Instalar módulo commitlint: `npm install @commitlint/cli@19.3.0`
+3. Instalar módulo com as regras do **conventional commits**: `@commitlint/config-conventional@19.2.2`
+4. Criar arquivo `commitlint.config.js` e descrever quais regras o commitlint deverá usar:
+
+   ```javascript
+   module.exports = {
+     extends: ["@commitlint/config-conventional"],
+   };
+   ```
+
+   - Exporta um objeto `{}`
+   - `extends` a regra do conventitonal.
+
+5. `npx` comando disponibilizado junto com `npm` com o foco de executar os módulos pela linha de comando. Por isso o `x` de **Execute**
+6. Executar: `npx commitlint`, que retornará as regras com o padrão de uso.
+7. No início das instruções é descrito `[input] reads from stdin if --edit, --env, --from and --to are omitted` que é lido um comando de entrada (input) para que seja gerado uma saída (output)
+8. Por tanto, executando `echo "teste" | npx commitlint`. Ele reporta que há dois problemas com essa mensagem:
+
+   ```
+   $ echo "teste" | npx commitlint
+   ⧗   input: teste
+   ✖   subject may not be empty [subject-empty]
+   ✖   type may not be empty [type-empty]
+
+   ✖   found 2 problems, 0 warnings
+   ⓘ   Get help: https://github.com/conventional-changelog/commitlint/#what-is-commitlint
+   ```
+
+9. Agora executando o comando adicionando o subject (mensagem) e o tipo permitido: `echo "feat: mensagem principal" | npx commitlint`
+
+## Segunda Pista Lenta
+
+**git rebase:** refazer a base!
+
+Da branch em questão, por exemplo, `lint-commits`, executar: `git rebase main`. Ou seja, rebase da branch `main` na branch `lint-commits`
+
+### Atualizar Workflow de Linting com commitlint
+
+1. Na documentação do [commitlint](https://commitlint.js.org/), buscar pelo `run` que faz essa execução no GitHub.
+2. `Em commitlint.js.org`, acessar `References` > `CI setup` e pegar `run` do workflow de exemplo:
+
+   `run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose`
+
+   **O que o comando `npx commitlint` está fazendo?**  
+   R: Está executando o comando de `commitlint` de tal commit (from) até tal commit (to). Essas informações são coletadas dos enventos de pull request injetados pelo próprio GitHub.
+
+3. No workflow de Linting, configurar Commitlint
+
+```yaml
+commitlint:
+  name: Commitlint
+  runs-on: ubuntu-latest
+
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Para baixar todos os commits. Por padrão a action só baixa o último commit.
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version: "lts/hydrogen"
+
+    - run: npm ci
+
+    - run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+```
+
+4. Configurar rulset para não permitr aprovação do merge equanto o commitlint não for executado com sucesso.
+
+**Ao executar o commitlint via workflow, o mesmo apontou as mensagens de commit que precisam de correção, e para corrigir, usaremos o `git rebase`**
+
+1. Executar no modo iteartivo pasando um commit que será usado como base: `git rebase -i HEAD~4`, ou seja, usando 3 commits atrás como base.
+
+### Dicas
+
+**Comparando commits**
+
+`git diff HEAD~1 HEAD`, onde ~1 indica qual commit anterior queR comparar com o commit atual.  
+`HEAD~1` (Um commit anterior) com `HEAD` (commit atual)
