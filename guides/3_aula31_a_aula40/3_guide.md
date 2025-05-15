@@ -382,6 +382,16 @@ Erro de compartibilidade das versões instaladas automaticamente pelo Next, ent�
 
 Da branch em questão, por exemplo, `lint-commits`, executar: `git rebase main`. Ou seja, rebase da branch `main` na branch `lint-commits`
 
+### Atualizar Workflow de Linting com commitlint
+
+1. Na documentação do [commitlint](https://commitlint.js.org/), buscar pelo `run` que faz essa execução no GitHub.
+2. `Em commitlint.js.org`, acessar `References` > `CI setup` e pegar `run` do workflow de exemplo:
+
+   `run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose`
+
+   **O que o comando `npx commitlint` está fazendo?**  
+   R: Está executando o comando de `commitlint` de tal commit (from) até tal commit (to). Essas informações são coletadas dos enventos de pull request injetados pelo próprio GitHub.
+
 ### Dicas
 
 **Comparando commits**
