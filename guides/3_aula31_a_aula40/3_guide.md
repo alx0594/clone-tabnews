@@ -417,7 +417,7 @@ commitlint:
 
 **Ao executar o commitlint via workflow, o mesmo apontou as mensagens de commit que precisam de correção, e para corrigir, usaremos o `git rebase`**
 
-1. Executar no modo iteartivo pasando um commit que será usado como base: `git rebase -i HEAD~3`, ou seja, usando 3 commits atrás como base.
+1. Executar no modo iteartivo pasando um commit que será usado como base: `git rebase -i HEAD~4`, ou seja, usando 3 commits atrás como base.
 
 ### Dicas
 
