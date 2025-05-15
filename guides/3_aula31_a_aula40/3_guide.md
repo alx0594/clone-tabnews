@@ -392,6 +392,33 @@ Da branch em questão, por exemplo, `lint-commits`, executar: `git rebase main`.
    **O que o comando `npx commitlint` está fazendo?**  
    R: Está executando o comando de `commitlint` de tal commit (from) até tal commit (to). Essas informações são coletadas dos enventos de pull request injetados pelo próprio GitHub.
 
+3. No workflow de Linting, configurar Commitlint
+
+```yaml
+commitlint:
+  name: Commitlint
+  runs-on: ubuntu-latest
+
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Para baixar todos os commits. Por padrão a action só baixa o último commit.
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version: "lts/hydrogen"
+
+    - run: npm ci
+
+    - run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+```
+
+4. Configurar rulset para não permitr aprovação do merge equanto o commitlint não for executado com sucesso.
+
+**Ao executar o commitlint via workflow, o mesmo apontou as mensagens de commit que precisam de correção, e para corrigir, usaremos o `git rebase`**
+
+1. Executar no modo iteartivo pasando um commit que será usado como base: `git rebase -i HEAD~3`, ou seja, usando 3 commits atrás como base.
+
 ### Dicas
 
 **Comparando commits**
