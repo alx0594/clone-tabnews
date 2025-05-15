@@ -342,3 +342,36 @@ Erro de compartibilidade das versões instaladas automaticamente pelo Next, ent�
 - **Conventional Commits**: https://www.conventionalcommits.org/en/v1.0.0/
 
 # Dia 33
+
+## Primeira Pista Lenta
+
+1. Configurar [commitlint](https://commitlint.js.org/)
+2. Instalar módulo commitlint: `npm install @commitlint/cli@19.3.0`
+3. Instalar módulo com as regras do **conventional commits**: `@commitlint/config-conventional@19.2.2`
+4. Criar arquivo `commitlint.config.js` e descrever quais regras o commitlint deverá usar:
+
+   ```javascript
+   module.exports = {
+     extends: ["@commitlint/config-conventional"],
+   };
+   ```
+
+   - Exporta um objeto `{}`
+   - `extends` a regra do conventitonal.
+
+5. `npx` comando disponibilizado junto com `npm` com o foco de executar os módulos pela linha de comando. Por isso o `x` de **Execute**
+6. Executar: `npx commitlint`, que retornará as regras com o padrão de uso.
+7. No início das instruções é descrito `[input] reads from stdin if --edit, --env, --from and --to are omitted` que é lido um comando de entrada (input) para que seja gerado uma saída (output)
+8. Por tanto, executando `echo "teste" | npx commitlint`. Ele reporta que há dois problemas com essa mensagem:
+
+   ```
+   $ echo "teste" | npx commitlint
+   ⧗   input: teste
+   ✖   subject may not be empty [subject-empty]
+   ✖   type may not be empty [type-empty]
+
+   ✖   found 2 problems, 0 warnings
+   ⓘ   Get help: https://github.com/conventional-changelog/commitlint/#what-is-commitlint
+   ```
+
+9. Agora executando o comando adicionando o subject (mensagem) e o tipo permitido: `echo "feat: mensagem principal" | npx commitlint`
