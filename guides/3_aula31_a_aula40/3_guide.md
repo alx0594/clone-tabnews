@@ -494,4 +494,16 @@ Adicionar um lint que valida que dados sensíveis não estão sendo commitados e
 
 ## Primeira Pista Lenta
 
-1.
+1. No GitHub.com, adicionar arquivo de licença no repositório: `LICENCE`
+
+## Segundo Pista Lenta
+
+### Semântica de versionamento
+
+Três números separados por pontos: **[major].[minor].[patch]**
+
+**patch:** Não causa breaking change. Alteração que não deverá afetar quem a consome. Não motifica nenhuma interface existente ao ponto de se tornar incompatível
+
+**minor:** Alteração que também não gera incompatibilidade, ou seja, não introduz nenhuma breaking change. Nada muda na integração que já existe.
+
+**major:** Reponsável por informar quando uma alteração resulta em uma breaking change. Pode quebrar a interagração com quem a consome. Quebra de interface.
