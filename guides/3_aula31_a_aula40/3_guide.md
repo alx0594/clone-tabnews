@@ -494,4 +494,49 @@ Adicionar um lint que valida que dados sensíveis não estão sendo commitados e
 
 ## Primeira Pista Lenta
 
-1.
+1. No GitHub.com, adicionar arquivo de licença no repositório: `LICENCE`
+
+## Segunda Pista Lenta
+
+### Semântica de versionamento
+
+Três números separados por pontos: **[major].[minor].[patch]**
+
+**patch:** Não causa breaking change. Alteração que não deverá afetar quem a consome. Não motifica nenhuma interface existente ao ponto de se tornar incompatível
+
+**minor:** Alteração que também não gera incompatibilidade, ou seja, não introduz nenhuma breaking change. Nada muda na integração que já existe.
+
+**major:** Reponsável por informar quando uma alteração resulta em uma breaking change. Pode quebrar a interagração com quem a consome. Quebra de interface.
+
+## Terceira Pista Lenta
+
+### Atualizar as dependências
+
+1. Executar `npx npm-check-updates -i` irá aparecer uma lista das dependências **versão atual** -> **versão atualizada**
+
+   ```
+   (*) @commitlint/cli                  ^19.3.0  →   ^19.8.1
+   (*) @commitlint/config-conventional  ^19.2.2  →   ^19.8.1
+   (*) commitizen                        ^4.3.0  →    ^4.3.1
+   (*) concurrently                      ^8.2.2  →    ^9.1.2
+   (*) dotenv                           ^16.4.4  →   ^16.5.0
+   (*) dotenv-expand                    ^11.0.6  →   ^12.0.2
+   (*) eslint                           ^8.57.0  →   ^9.27.0
+   (*) eslint-config-next               ^14.2.4  →   ^15.3.2
+   (*) eslint-config-prettier            ^9.1.0  →   ^10.1.5
+   (*) eslint-plugin-jest               ^28.6.0  →  ^28.11.0
+   (*) husky                             ^9.1.4  →    ^9.1.7
+   (*) jest                             ^29.6.2  →   ^29.7.0
+   ```
+
+2. Após atualização das dependências e execução do comando `npm i` apontou várias incompatibilidades. Dessa forma, faremos um `git checkout -- package.json` para voltar as alterações realizadas pelo comando de atualização. Também podemos usar o comando para voltar alterações de todos arquivos: `git checkout -- .`
+
+3. Agora vamos fazer por partes.
+
+   - Tirar a seleção de todas as atualizações.
+   - Atualizar dpendência do Next. Log em seguida executar os testes.
+   - Funcionando, fazer o `amend` do commit: `git add -A && git commit --amend --no-edit`
+
+#### Dicas
+
+`Ctrl + r` e `Ctrl - r`: Aumenta e diminui fontes do VSCode.
