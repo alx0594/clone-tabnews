@@ -481,3 +481,5 @@ husky - commit-msg script failed (code 1)
     ```
 
 11. No `package.json`, adicionar o script de commit chamando o `commitizen`: `"commit": "cz"`
+12. Adicionar os arquivos alterados em `staging -> git add -A`
+13. Executar o comando: `npm run commit`, que irá aprecer um combo do tipo de commit para selecionar.
