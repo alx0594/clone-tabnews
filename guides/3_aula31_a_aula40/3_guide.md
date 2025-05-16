@@ -483,3 +483,15 @@ husky - commit-msg script failed (code 1)
 11. No `package.json`, adicionar o script de commit chamando o `commitizen`: `"commit": "cz"`
 12. Adicionar os arquivos alterados em `staging -> git add -A`
 13. Executar o comando: `npm run commit`, que irá aprecer um combo do tipo de commit para selecionar.
+
+**Observação:** Caso queira pular as configurações de hooks que fizemos, no comando git podemos adiconar a opção **--no-verify** ou somente **-n** ficando assim: `npm commit --no-verify` ou `npm commit -n`
+
+### Desafio
+
+Adicionar um lint que valida que dados sensíveis não estão sendo commitados em arquivos da aplicação.
+
+# Dia 34
+
+## Primeira Pista Lenta
+
+1.
