@@ -443,3 +443,41 @@ commitlint:
 6. Deletar o aquivo chamado `pre-commit` e criar um com os nossos hooks.
 7. Em `.husky`, criar: `commit-msg`: Tudo que digitarmos neste arquivo será executado após a mensagem de commit.
 8. No arquivo `commit-msg`, digitar o comando: `npx commitlint --edit $1`, onde `$1` será o caminho onde está a mensagem de commit.
+
+**Testando commit no formato errado para ver o hook funcionando**  
+`git commit -m "teste mensagem no formato errado"`
+
+**Resultado**
+
+```
+$ git commit -m "teste de mensagem no formato errado"
+⧗   input: teste de mensagem no formato errado
+✖   subject may not be empty [subject-empty]
+✖   type may not be empty [type-empty]
+
+✖   found 2 problems, 0 warnings
+ⓘ   Get help: https://github.com/conventional-changelog/commitlint/#what-is-commitlint
+
+husky - commit-msg script failed (code 1)
+```
+
+**_Dessa forma evitamos de subir mensagens errada para o GitHub, que também será validada no Job do workflow de linting_**
+
+> Agora fica uma questão, não foi possível decorar todos os types de commit (feat, ci, chore, etc) para saber qual type usar. Nesse sentido, a comunidade criou a lib `commitizen`
+
+9. Instalar dependência `npm i -D commitizen@4.3.0`
+10. Com base na documentação [commitizen](https://www.npmjs.com/package/commitizen), executar o comando para preparar o ambiente local:
+    `npx commitizen init cz-conventional-changelog --save-dev --save-exact`
+
+    Após execução do comando, a dependência foi instalada: `"cz-conventional-changelog": "^3.3.0",`
+    e o config foi adicionado no **package.json**:
+
+    ```json
+    "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+    }
+    ```
+
+11. No `package.json`, adicionar o script de commit chamando o `commitizen`: `"commit": "cz"`
