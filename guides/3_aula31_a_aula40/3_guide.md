@@ -431,4 +431,15 @@ commitlint:
 
 ## Terceira Pista Lenta
 
-// Ponto de parada
+### Hooks (Ganchos)
+
+[Husky](https://typicode.github.io/husky/)
+
+1. Instalar módulo husky como dependência de desenvolvimento: `npm install --save-dev husky@9.1.4`
+2. Executar comando: `npx husky init`
+3. Após executar o comando `npx husky init`, foi criado o script de `prepare` automaticamente no `package.json`: **"prepare": "husky"**
+4. Agora, depois de instalar as dependências, o `npm` executará o script de `prepare` automaticamente.
+5. Veja que agora no arquivo `.git/config` temos o `hookPath` apontando para `.husky`
+6. Deletar o aquivo chamado `pre-commit` e criar um com os nossos hooks.
+7. Em `.husky`, criar: `commit-msg`: Tudo que digitarmos neste arquivo será executado após a mensagem de commit.
+8. No arquivo `commit-msg`, digitar o comando: `npx commitlint --edit $1`, onde `$1` será o caminho onde está a mensagem de commit.
