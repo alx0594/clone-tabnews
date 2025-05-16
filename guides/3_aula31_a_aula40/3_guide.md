@@ -417,7 +417,10 @@ commitlint:
 
 **Ao executar o commitlint via workflow, o mesmo apontou as mensagens de commit que precisam de correção, e para corrigir, usaremos o `git rebase`**
 
-1. Executar no modo iteartivo pasando um commit que será usado como base: `git rebase -i HEAD~4`, ou seja, usando 3 commits atrás como base.
+1. Executar no modo `iteartivo` pasando um commit que será usado como base: `git rebase -i HEAD~4`, ou seja, usando 4 commits atrás como base (verificado usando `git log`).
+
+2. Será aberto uma janela do VSCode com os commits. Alterar de `pick` para `reword` > Salvar arquivo e fechá-lo. Em seguida será aberto nova aba no VSCode, agora podendo alterar a mensagem de commit, alterando de `add commitlint` para `ci: add commitlint`
+3. Após ajuste das mensagens de commit para o padrão conventional commits, o workflow executou o `commitlint` com sucesso
 
 ### Dicas
 
@@ -425,3 +428,7 @@ commitlint:
 
 `git diff HEAD~1 HEAD`, onde ~1 indica qual commit anterior queR comparar com o commit atual.  
 `HEAD~1` (Um commit anterior) com `HEAD` (commit atual)
+
+## Terceira Pista Lenta
+
+// Ponto de parada
