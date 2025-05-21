@@ -510,6 +510,15 @@ Três números separados por pontos: **[major].[minor].[patch]**
 
 ## Terceira Pista Lenta
 
+1. Criar branch `maintenance` (manutenção)
+2. Remover o operador `^` das dependências no `package.json`
+3. Executar o `npm install` das versões travadas.
+4. Verificar dependências desatualizadas `npm outdated` Retorna uma lista de dependências que possuem atualizações disponíveis.
+5. Executar `npm audit` para verificar uma auditoria dos pacotes
+6. Feito isso, faremos um commit, `git add -A` e `npm run commit`
+
+## Quarta Pista Lenta
+
 ### Atualizar as dependências
 
 1. Executar `npx npm-check-updates -i` irá aparecer uma lista das dependências **versão atual** -> **versão atualizada**
