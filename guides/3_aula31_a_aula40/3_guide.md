@@ -516,6 +516,13 @@ Três números separados por pontos: **[major].[minor].[patch]**
 4. Verificar dependências desatualizadas `npm outdated` Retorna uma lista de dependências que possuem atualizações disponíveis.
 5. Executar `npm audit` para verificar uma auditoria dos pacotes
 6. Feito isso, faremos um commit, `git add -A` e `npm run commit`
+7. Executar o comando `npx npm-check-updates -i` _A opção `a` marca e desmarca todas na lista_ e _A opção space seleciona um a um._
+   > Sugestão: Iniciar atualizando `patch`, depois `minor` e por último `major`
+8. Vamos começar autalizando o dotenv. Selecionar dotenv (space) e atualizar (enter). Deseja instalar? Sim (Y)
+   > A fim de manter a compatilidade das dependências com a do instrutor, caso uma dependência não seja a mesma da aula, atualizar manualmente no package.json
+9. Executar `npm run test`. Se tudo funcionando, executar `npm run commit`
+10. Agora atualizar `eslint-config-next`, valida `npm run lint:eslint:check`, executar o amend `git add -A && git commit --amend --no-edit`
+11. Fazer comparação nas alterações dos commits, especificamente do arquivo **pacakge.json** `git diff HEAD^1 HEAD package.json`
 
 ## Quarta Pista Lenta
 
@@ -549,3 +556,15 @@ Três números separados por pontos: **[major].[minor].[patch]**
 #### Dicas
 
 `Ctrl + r` e `Ctrl - r`: Aumenta e diminui fontes do VSCode.
+
+**ERESOLVE**: Erro ao resolver dependencias (_Error Resolving_)
+
+**Peer Dependency** (Dependência de Pares) - "Dependência compartilhada"
+Exemplo de Peer Dependency do `react-dom`  
+node_modules\react-dom\package.json
+
+```
+"peerDependencies": {
+    "react": "^18.2.0"
+  },
+```
