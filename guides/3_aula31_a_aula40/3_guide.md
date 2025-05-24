@@ -496,7 +496,7 @@ Adicionar um lint que valida que dados sensíveis não estão sendo commitados e
 
 1. No GitHub.com, adicionar arquivo de licença no repositório: `LICENCE`
 
-## Segundo Pista Lenta
+## Segunda Pista Lenta
 
 ### Semântica de versionamento
 
@@ -507,3 +507,304 @@ Três números separados por pontos: **[major].[minor].[patch]**
 **minor:** Alteração que também não gera incompatibilidade, ou seja, não introduz nenhuma breaking change. Nada muda na integração que já existe.
 
 **major:** Reponsável por informar quando uma alteração resulta em uma breaking change. Pode quebrar a interagração com quem a consome. Quebra de interface.
+
+## Terceira Pista Lenta
+
+1. Criar branch `maintenance` (manutenção)
+2. Remover o operador `^` das dependências no `package.json`
+3. Executar o `npm install` das versões travadas.
+4. Verificar dependências desatualizadas `npm outdated` Retorna uma lista de dependências que possuem atualizações disponíveis.
+5. Executar `npm audit` para verificar uma auditoria dos pacotes
+6. Feito isso, faremos um commit, `git add -A` e `npm run commit`
+7. Executar o comando `npx npm-check-updates -i` _A opção `a` marca e desmarca todas na lista_ e _A opção space seleciona um a um._
+   > Sugestão: Iniciar atualizando `patch`, depois `minor` e por último `major`
+8. Vamos começar autalizando o dotenv. Selecionar dotenv (space) e atualizar (enter). Deseja instalar? Sim (Y)
+   > A fim de manter a compatilidade das dependências com a do instrutor, caso uma dependência não seja a mesma da aula, atualizar manualmente no package.json
+9. Executar `npm run test`. Se tudo funcionando, executar `npm run commit`
+10. Agora atualizar `eslint-config-next`, valida `npm run lint:eslint:check`, executar o amend `git add -A && git commit --amend --no-edit`
+11. Fazer comparação nas alterações dos commits, especificamente do arquivo **pacakge.json** `git diff HEAD^1 HEAD package.json`
+
+## Quarta Pista Lenta
+
+### Atualizar as dependências
+
+1. Executar `npx npm-check-updates -i` irá aparecer uma lista das dependências **versão atual** -> **versão atualizada**
+
+   ```
+   (*) @commitlint/cli                  ^19.3.0  →   ^19.8.1
+   (*) @commitlint/config-conventional  ^19.2.2  →   ^19.8.1
+   (*) commitizen                        ^4.3.0  →    ^4.3.1
+   (*) concurrently                      ^8.2.2  →    ^9.1.2
+   (*) dotenv                           ^16.4.4  →   ^16.5.0
+   (*) dotenv-expand                    ^11.0.6  →   ^12.0.2
+   (*) eslint                           ^8.57.0  →   ^9.27.0
+   (*) eslint-config-next               ^14.2.4  →   ^15.3.2
+   (*) eslint-config-prettier            ^9.1.0  →   ^10.1.5
+   (*) eslint-plugin-jest               ^28.6.0  →  ^28.11.0
+   (*) husky                             ^9.1.4  →    ^9.1.7
+   (*) jest                             ^29.6.2  →   ^29.7.0
+   ```
+
+2. Após atualização das dependências e execução do comando `npm i` apontou várias incompatibilidades. Dessa forma, faremos um `git checkout -- package.json` para voltar as alterações realizadas pelo comando de atualização. Também podemos usar o comando para voltar alterações de todos arquivos: `git checkout -- .`
+
+3. Agora vamos fazer por partes.
+
+   - Tirar a seleção de todas as atualizações.
+   - Atualizar dpendência do Next. Log em seguida executar os testes.
+   - Funcionando, fazer o `amend` do commit: `git add -A && git commit --amend --no-edit`
+
+#### Dicas
+
+`Ctrl + r` e `Ctrl - r`: Aumenta e diminui fontes do VSCode.
+
+**ERESOLVE**: Erro ao resolver dependencias (_Error Resolving_)
+
+**Peer Dependency** (Dependência de Pares) - "Dependência compartilhada"
+Exemplo de Peer Dependency do `react-dom`  
+node_modules\react-dom\package.json
+
+```
+"peerDependencies": {
+    "react": "^18.2.0"
+  },
+```
+
+# Dia 35
+
+## Primeira Pista Lenta
+
+### Refatoração
+
+1. No package.json, renomear o script de chamda `wait-for-postgres` para `services:wait:database` e movê-lo para perto dos scripts de `services`. Salvar e realizar commit `npm run commit` do tipo `refactor`.
+
+2. No **package.json** alterar os scripts de `migration` para `migrations` (no plural) e movê-los para baixo dos scripts de `service`
+
+3. Os scripts dentro do package.json devem sempre estar ordanados do mais importantes para os menos importantes. Dito isso, mover os scripts de `tests` para baixo do script de `dev`
+
+4. Usando scripts de `pre` e `post` do próprio npm.
+
+   - No package.json, adicionar o script "**pre**dev:" antes do script de "**dev**"
+   - No package.json, adicionar o script "**post**dev:" depois do script de "**dev**"
+   - Portanto, no script `"postdev"`, executar o comando de serviços que para o postgres.
+     `"postdev": "npm run services:stop"`**_ O postdev não foi implementado para o projeto, pois requer uma solução compatível com os principais sistemas operacionais_**. Possível solução: https://www.geeksforgeeks.org/shell-scripting-bash-trap-command/ - https://github.com/gabrielroodriz/clone-tabnews/commit/3cd8922762695c0e082165259e5a78d494e2c04f
+   - Script de **posttest**: `"posttest": "npm run services:stop"`,
+
+## Segunda Pista Lenta
+
+### Refatoração dos Testes
+
+> **Gherking**: Gherkin é uma linguagem simples e compreensível usada para **escrever especificações de comportamento de software**, facilitando a comunicação entre diferentes partes interessadas no desenvolvimento de software. É especialmente útil no contexto do **Desenvolvimento Orientado a Comportamento (BDD)** para descrever cenários de teste de forma clara e objetiva.
+
+**Um cenário Gherkin geralmente é composto por:**
+
+1. Feature (Recurso):
+   Uma descrição geral da funcionalidade do software que está sendo testada.
+2. Scenario (Cenário):
+   Uma descrição específica do comportamento do software em um determinado contexto.
+3. Steps (Passos):
+   As etapas que são seguidas para testar o comportamento do software.
+4. Palavras-chave:
+   Palavras-chave como "Dado", "Quando", "Então" são usadas para dar contexto e estrutura aos passos.
+
+```
+Feature: Login
+  Como usuário,
+  Eu quero me autenticar na aplicação,
+  Para acessar minhas funcionalidades.
+
+  Scenario: Autenticação com sucesso
+    Dado que eu estou na tela de login
+    E que eu preenço minhas credenciais válidas
+    Quando eu clico no botão "Entrar"
+    Então eu devo ser redirecionado para a página inicial logado.
+```
+
+> **Cumcumber**: Cucumber é um framework de Desenvolvimento Orientado a Comportamento (BDD) usado para escrever e executar testes automatizados. Ele permite que você defina o comportamento do software em um formato simples e legível por humanos, tornando-o acessível tanto para stakeholders técnicos quanto não técnicos.
+
+**Framework Cucumber:**
+
+- Cucumber é uma ferramenta específica que suporta **BDD**.
+- Ele permite que você escreva casos de teste em português claro usando uma linguagem chamada Gherkin.
+- O Cucumber executa essas especificações Gherkin e verifica se o software se comporta conforme o esperado.
+- Ele preenche a lacuna entre os requisitos de negócios e a implementação técnica.
+
+1. No script de test:watch, adicionar o verbose: ` "test:watch": "jest --watchAll --runInBand --verbose",`
+
+#### Primeira refatoração: /migrations/post.test.js
+
+1. Adicionar os describes nos testes, tornando-os bem mais semânticos:
+
+**Adiciona `describe`**
+
+```javascript
+describe("POST /api/v1/migrations", () => {
+  describe("Anonymoys user", () => {
+    describe("Running pending migrations", () => {
+      test("For the first time", async () => {
+```
+
+**Resultado**
+
+```
+ PASS  tests/integration/api/v1/migrations/post.test.js
+  POST /api/v1/migrations
+    Anonymoys user
+      Running pending migrations
+        √ For the first time (56 ms)
+```
+
+2. Adicionar um `test()` para cada requisição.
+   `test("For the first time", async () => {}`
+   `test("For the second time", async () => {}`
+   **Resultado**
+
+```
+ PASS  tests/integration/api/v1/migrations/post.test.js
+  POST /api/v1/migrations
+    Anonymoys user
+      Running pending migrations
+        √ For the first time (42 ms)
+        √ For the second time (23 ms)
+```
+
+3. Refatorar a forma como está sendo limpo o banco de dados.
+
+- No módulo `tests/orchestrator` criar function de limpeza do banco de dados abaixo da function `waitForAllServices()`
+
+```javascript
+async function clearDatabase() {
+  await database.query("DROP schema public cascade; create schema public");
+}
+```
+
+- Nos módulos de testes, especificamente dentro da function **beforeAll** `migrations/post.test.js` e `migrations/get.test.js` chamar a function de limpeza do banco de dados:
+
+```javascript
+beforeAll(async () => {
+  await orchestrator.waitForAllServices();
+  await orchestrator.clearDatabase();
+});
+```
+
+**Teste completo**
+
+```javascript
+import orchestrator from "tests/orchestrator.js";
+
+beforeAll(async () => {
+  await orchestrator.waitForAllServices();
+  await orchestrator.clearDatabase();
+});
+
+describe("POST /api/v1/migrations", () => {
+  describe("Anonymoys user", () => {
+    describe("Running pending migrations", () => {
+      test("For the first time", async () => {
+        const response1 = await fetch(
+          "http://localhost:3000/api/v1/migrations",
+          {
+            method: "POST",
+          },
+        );
+        expect(response1.status).toBe(201);
+
+        const response1Body = await response1.json();
+
+        expect(Array.isArray(response1Body)).toBe(true);
+        expect(response1Body.length).toBeGreaterThan(0);
+      });
+      test("For the second time", async () => {
+        const response2 = await fetch(
+          "http://localhost:3000/api/v1/migrations",
+          {
+            method: "POST",
+          },
+        );
+        expect(response2.status).toBe(200);
+
+        const response2Body = await response2.json();
+
+        expect(Array.isArray(response2Body)).toBe(true);
+        expect(response2Body.length).toBe(0);
+      });
+    });
+  });
+});
+```
+
+#### Primeira refatoração: /migrations/get.test.js
+
+Usando a mesma lógica para refatoração do `/migrations/post.test.js`, segue módulo refatorado:
+
+```javascript
+import orchestrator from "tests/orchestrator.js";
+
+beforeAll(async () => {
+  await orchestrator.waitForAllServices();
+  await orchestrator.clearDatabase();
+});
+
+describe("GET /api/v1/migrations", () => {
+  describe("Anonymoys user", () => {
+    test("Retrieving pending migrations", async () => {
+      const response = await fetch("http://localhost:3000/api/v1/migrations");
+      expect(response.status).toBe(200);
+
+      const responseBody = await response.json();
+
+      expect(Array.isArray(responseBody)).toBe(true);
+      expect(responseBody.length).toBeGreaterThan(0);
+    });
+  });
+});
+```
+
+#### Primeira refatoração: /status/get.test.js
+
+```javascript
+import orchestrator from "tests/orchestrator.js";
+
+beforeAll(async () => {
+  await orchestrator.waitForAllServices();
+});
+
+describe("GET /api/v1/status", () => {
+  describe("Anonymoys user", () => {
+    test("Retrieving current system status", async () => {
+      const response = await fetch("http://localhost:3000/api/v1/status");
+      expect(response.status).toBe(200);
+
+      const responseBody = await response.json();
+
+      const parsedUpdateAt = new Date(responseBody.update_at).toISOString();
+      expect(responseBody.update_at).toEqual(parsedUpdateAt);
+
+      expect(responseBody.dependencies.database.version).toEqual("16.0");
+
+      expect(responseBody.dependencies.database.max_connections).toEqual(100);
+
+      expect(responseBody.dependencies.database.open_connections).toEqual(1);
+    });
+  });
+});
+```
+
+### Fazendo rebase na descrição do test que consulta (GET) a migration
+
+1. Verificar qual será meu commit base usando git log. No caso: 96588089131b295665c6c39eb0b43f607507ddb7
+
+2. Executar git rabase 96588089131b295665c6c39eb0b43f607507ddb7 **-i**
+
+3. No commit da descrição do log, alterar de `pick` para `edit` e salvar arquivo. Ficando conforme abaixo:
+   `edit e903a3a test: adiconado descrições para adicionar novo padrão`
+   Veja que o edit é para realizar um amend: **_# e, edit <commit> = use commit, but stop for amending_**
+
+4. Fechar o arquivo, já estaremos no commit que desajamos altear. Mudar a mensagem do discribe do test para **Retrieving pending migrations** e salvar o arquivo.
+
+5. Executar o comando `git commit --amend --no-edit`
+
+6. Executar o comando para finalizar o rebase: `git rebase --continue`
+
+7. Mandar alteração para o repositório remoto: `git push origin maintenance -f`
+
+Ponto de parada: https://curso.dev/web/milestone-1-encerramento

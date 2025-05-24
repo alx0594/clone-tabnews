@@ -553,6 +553,10 @@ services:
 4. Show! Conectado.
 5. Sair da conexão do PSQL: \q
 
+**Melhor forma de Testar com PSQL:**
+`psql -h localhost -U meuusuario -d meubanco`
+`psql -h host -U local_user -d local_db`
+
 ### Documentação Postgres
 
 1. SQL SHOW: https://www.postgresql.org/docs/current/sql-show.html
