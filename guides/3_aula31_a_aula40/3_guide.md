@@ -586,5 +586,5 @@ node_modules\react-dom\package.json
    - No package.json, adicionar o script "**pre**dev:" antes do script de "**dev**"
    - No package.json, adicionar o script "**post**dev:" depois do script de "**dev**"
    - Portanto, no script `"postdev"`, executar o comando de serviços que para o postgres.
-     `"postdev": "npm run services:stop"`**_ O postdev não foi implementado para o projeto, pois requer uma solução compatível com os principais sistemas operacionais_**.
+     `"postdev": "npm run services:stop"`**_ O postdev não foi implementado para o projeto, pois requer uma solução compatível com os principais sistemas operacionais_**. Possível solução: https://www.geeksforgeeks.org/shell-scripting-bash-trap-command/ - https://github.com/gabrielroodriz/clone-tabnews/commit/3cd8922762695c0e082165259e5a78d494e2c04f
    - Script de **posttest**: `"posttest": "npm run services:stop"`,
