@@ -798,3 +798,13 @@ describe("GET /api/v1/status", () => {
 3. No commit da descrição do log, alterar de `pick` para `edit` e salvar arquivo. Ficando conforme abaixo:
    `edit e903a3a test: adiconado descrições para adicionar novo padrão`
    Veja que o edit é para realizar um amend: **_# e, edit <commit> = use commit, but stop for amending_**
+
+4. Fechar o arquivo, já estaremos no commit que desajamos altear. Mudar a mensagem do discribe do test para **Retrieving pending migrations** e salvar o arquivo.
+
+5. Executar o comando `git commit --amend --no-edit`
+
+6. Executar o comando para finalizar o rebase: `git rebase --continue`
+
+7. Mandar alteração para o repositório remoto: `git push origin maintenance -f`
+
+Ponto de parada: https://curso.dev/web/milestone-1-encerramento
