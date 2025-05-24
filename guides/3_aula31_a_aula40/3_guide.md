@@ -588,3 +588,186 @@ node_modules\react-dom\package.json
    - Portanto, no script `"postdev"`, executar o comando de serviços que para o postgres.
      `"postdev": "npm run services:stop"`**_ O postdev não foi implementado para o projeto, pois requer uma solução compatível com os principais sistemas operacionais_**. Possível solução: https://www.geeksforgeeks.org/shell-scripting-bash-trap-command/ - https://github.com/gabrielroodriz/clone-tabnews/commit/3cd8922762695c0e082165259e5a78d494e2c04f
    - Script de **posttest**: `"posttest": "npm run services:stop"`,
+
+## Segunda Pista Lenta
+
+### Refatoração dos Testes
+
+> **Gherking**: Gherkin é uma linguagem simples e compreensível usada para **escrever especificações de comportamento de software**, facilitando a comunicação entre diferentes partes interessadas no desenvolvimento de software. É especialmente útil no contexto do **Desenvolvimento Orientado a Comportamento (BDD)** para descrever cenários de teste de forma clara e objetiva.
+
+**Um cenário Gherkin geralmente é composto por:**
+
+1. Feature (Recurso):
+   Uma descrição geral da funcionalidade do software que está sendo testada.
+2. Scenario (Cenário):
+   Uma descrição específica do comportamento do software em um determinado contexto.
+3. Steps (Passos):
+   As etapas que são seguidas para testar o comportamento do software.
+4. Palavras-chave:
+   Palavras-chave como "Dado", "Quando", "Então" são usadas para dar contexto e estrutura aos passos.
+
+```
+Feature: Login
+  Como usuário,
+  Eu quero me autenticar na aplicação,
+  Para acessar minhas funcionalidades.
+
+  Scenario: Autenticação com sucesso
+    Dado que eu estou na tela de login
+    E que eu preenço minhas credenciais válidas
+    Quando eu clico no botão "Entrar"
+    Então eu devo ser redirecionado para a página inicial logado.
+```
+
+> **Cumcumber**: Cucumber é um framework de Desenvolvimento Orientado a Comportamento (BDD) usado para escrever e executar testes automatizados. Ele permite que você defina o comportamento do software em um formato simples e legível por humanos, tornando-o acessível tanto para stakeholders técnicos quanto não técnicos.
+
+**Framework Cucumber:**
+
+- Cucumber é uma ferramenta específica que suporta **BDD**.
+- Ele permite que você escreva casos de teste em português claro usando uma linguagem chamada Gherkin.
+- O Cucumber executa essas especificações Gherkin e verifica se o software se comporta conforme o esperado.
+- Ele preenche a lacuna entre os requisitos de negócios e a implementação técnica.
+
+1. No script de test:watch, adicionar o verbose: ` "test:watch": "jest --watchAll --runInBand --verbose",`
+
+#### Primeira refatoração: /migrations/post.test.js
+
+1. Adicionar os describes nos testes, tornando-os bem mais semânticos:
+
+**Adiciona `describe`**
+
+```javascript
+describe("POST /api/v1/migrations", () => {
+  describe("Anonymoys user", () => {
+    describe("Running pending migrations", () => {
+      test("For the first time", async () => {
+```
+
+**Resultado**
+
+```
+ PASS  tests/integration/api/v1/migrations/post.test.js
+  POST /api/v1/migrations
+    Anonymoys user
+      Running pending migrations
+        √ For the first time (56 ms)
+```
+
+2. Adicionar um `test()` para cada requisição.
+   `test("For the first time", async () => {}`
+   `test("For the second time", async () => {}`
+   **Resultado**
+
+```
+ PASS  tests/integration/api/v1/migrations/post.test.js
+  POST /api/v1/migrations
+    Anonymoys user
+      Running pending migrations
+        √ For the first time (42 ms)
+        √ For the second time (23 ms)
+```
+
+**Teste completo**
+
+```javascript
+import database from "infra/database.js";
+import orchestrator from "tests/orchestrator.js";
+
+beforeAll(async () => {
+  await orchestrator.waitForAllServices();
+  await database.query("DROP schema public cascade; create schema public");
+});
+
+describe("POST /api/v1/migrations", () => {
+  describe("Anonymoys user", () => {
+    describe("Running pending migrations", () => {
+      test("For the first time", async () => {
+        const response1 = await fetch(
+          "http://localhost:3000/api/v1/migrations",
+          {
+            method: "POST",
+          },
+        );
+        expect(response1.status).toBe(201);
+
+        const response1Body = await response1.json();
+
+        expect(Array.isArray(response1Body)).toBe(true);
+        expect(response1Body.length).toBeGreaterThan(0);
+      });
+      test("For the second time", async () => {
+        const response2 = await fetch(
+          "http://localhost:3000/api/v1/migrations",
+          {
+            method: "POST",
+          },
+        );
+        expect(response2.status).toBe(200);
+
+        const response2Body = await response2.json();
+
+        expect(Array.isArray(response2Body)).toBe(true);
+        expect(response2Body.length).toBe(0);
+      });
+    });
+  });
+});
+```
+
+#### Primeira refatoração: /migrations/get.test.js
+
+Usando a mesma lógica para refatoração do `/migrations/post.test.js`, segue módulo refatorado:
+
+```javascript
+import database from "infra/database.js";
+import orchestrator from "tests/orchestrator.js";
+
+beforeAll(async () => {
+  await orchestrator.waitForAllServices();
+  await database.query("DROP schema public cascade; create schema public");
+});
+
+describe("GET /api/v1/migrations", () => {
+  describe("Anonymoys user", () => {
+    test("Running pending migrations", async () => {
+      const response = await fetch("http://localhost:3000/api/v1/migrations");
+      expect(response.status).toBe(200);
+
+      const responseBody = await response.json();
+
+      expect(Array.isArray(responseBody)).toBe(true);
+      expect(responseBody.length).toBeGreaterThan(0);
+    });
+  });
+});
+```
+
+#### Primeira refatoração: /status/get.test.js
+
+```javascript
+import orchestrator from "tests/orchestrator.js";
+
+beforeAll(async () => {
+  await orchestrator.waitForAllServices();
+});
+
+describe("GET /api/v1/status", () => {
+  describe("Anonymoys user", () => {
+    test("Retrieving current system status", async () => {
+      const response = await fetch("http://localhost:3000/api/v1/status");
+      expect(response.status).toBe(200);
+
+      const responseBody = await response.json();
+
+      const parsedUpdateAt = new Date(responseBody.update_at).toISOString();
+      expect(responseBody.update_at).toEqual(parsedUpdateAt);
+
+      expect(responseBody.dependencies.database.version).toEqual("16.0");
+
+      expect(responseBody.dependencies.database.max_connections).toEqual(100);
+
+      expect(responseBody.dependencies.database.open_connections).toEqual(1);
+    });
+  });
+});
+```
