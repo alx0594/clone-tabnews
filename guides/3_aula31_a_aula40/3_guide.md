@@ -667,15 +667,33 @@ describe("POST /api/v1/migrations", () => {
         √ For the second time (23 ms)
 ```
 
+3. Refatorar a forma como está sendo limpo o banco de dados.
+
+- No módulo `tests/orchestrator` criar function de limpeza do banco de dados abaixo da function `waitForAllServices()`
+
+```javascript
+async function clearDatabase() {
+  await database.query("DROP schema public cascade; create schema public");
+}
+```
+
+- Nos módulos de testes, especificamente dentro da function **beforeAll** `migrations/post.test.js` e `migrations/get.test.js` chamar a function de limpeza do banco de dados:
+
+```javascript
+beforeAll(async () => {
+  await orchestrator.waitForAllServices();
+  await orchestrator.clearDatabase();
+});
+```
+
 **Teste completo**
 
 ```javascript
-import database from "infra/database.js";
 import orchestrator from "tests/orchestrator.js";
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices();
-  await database.query("DROP schema public cascade; create schema public");
+  await orchestrator.clearDatabase();
 });
 
 describe("POST /api/v1/migrations", () => {
@@ -719,12 +737,11 @@ describe("POST /api/v1/migrations", () => {
 Usando a mesma lógica para refatoração do `/migrations/post.test.js`, segue módulo refatorado:
 
 ```javascript
-import database from "infra/database.js";
 import orchestrator from "tests/orchestrator.js";
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices();
-  await database.query("DROP schema public cascade; create schema public");
+  await orchestrator.clearDatabase();
 });
 
 describe("GET /api/v1/migrations", () => {
