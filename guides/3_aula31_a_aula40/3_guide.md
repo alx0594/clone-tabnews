@@ -581,4 +581,10 @@ node_modules\react-dom\package.json
 
 3. Os scripts dentro do package.json devem sempre estar ordanados do mais importantes para os menos importantes. Dito isso, mover os scripts de `tests` para baixo do script de `dev`
 
-4.
+4. Usando scripts de `pre` e `post` do próprio npm.
+
+   - No package.json, adicionar o script "**pre**dev:" antes do script de "**dev**"
+   - No package.json, adicionar o script "**post**dev:" depois do script de "**dev**"
+   - Portanto, no script `"postdev"`, executar o comando de serviços que para o postgres.
+     `"postdev": "npm run services:stop"`**_ O postdev não foi implementado para o projeto, pois requer uma solução compatível com os principais sistemas operacionais_**.
+   - Script de **posttest**: `"posttest": "npm run services:stop"`,
