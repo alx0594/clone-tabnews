@@ -788,3 +788,13 @@ describe("GET /api/v1/status", () => {
   });
 });
 ```
+
+### Fazendo rebase na descrição do test que consulta (GET) a migration
+
+1. Verificar qual será meu commit base usando git log. No caso: 96588089131b295665c6c39eb0b43f607507ddb7
+
+2. Executar git rabase 96588089131b295665c6c39eb0b43f607507ddb7 **-i**
+
+3. No commit da descrição do log, alterar de `pick` para `edit` e salvar arquivo. Ficando conforme abaixo:
+   `edit e903a3a test: adiconado descrições para adicionar novo padrão`
+   Veja que o edit é para realizar um amend: **_# e, edit <commit> = use commit, but stop for amending_**
