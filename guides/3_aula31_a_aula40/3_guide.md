@@ -568,3 +568,13 @@ node_modules\react-dom\package.json
     "react": "^18.2.0"
   },
 ```
+
+# Dia 35
+
+## Primeira Pista Lenta
+
+### Refatoração
+
+1. No package.json, renomear o script de chamda `wait-for-postgres` para `services:wait:database` e movê-lo para perto dos scripts de `services`. Salvar e realizar commit.
+
+2.
