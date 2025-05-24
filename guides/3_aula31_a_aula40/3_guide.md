@@ -575,6 +575,6 @@ node_modules\react-dom\package.json
 
 ### Refatoração
 
-1. No package.json, renomear o script de chamda `wait-for-postgres` para `services:wait:database` e movê-lo para perto dos scripts de `services`. Salvar e realizar commit.
+1. No package.json, renomear o script de chamda `wait-for-postgres` para `services:wait:database` e movê-lo para perto dos scripts de `services`. Salvar e realizar commit `npm run commit` do tipo `refactor`.
 
-2.
+2. No **package.json** alterar os scripts de `migration` para `migrations` (no plural) e movê-los para baixo dos scripts de `service`
