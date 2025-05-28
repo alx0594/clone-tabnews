@@ -807,4 +807,13 @@ describe("GET /api/v1/status", () => {
 
 7. Mandar alteração para o repositório remoto: `git push origin maintenance -f`
 
-Ponto de parada: https://curso.dev/web/milestone-1-encerramento
+### Identificado Bug no ambiente de Hom.
+
+**Problema**  
+Na chamada da [API](https://clone-tabnews-git-maintenance-alx0594s-projects.vercel.app/api/v1/migrations), retorna erro 500, o arquivo infra/migration não é encontrado.
+
+**Solução**
+Alterar `join` por `resolve`
+
+`import { resolve } from "node:path";`  
+`dir: resolve("infra", "migrations"),`
