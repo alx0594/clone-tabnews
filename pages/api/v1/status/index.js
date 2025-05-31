@@ -26,7 +26,7 @@ async function status(request, response) {
       database: {
         version: databaseVersionValue, //"postgres:16.0-alpine3.18" compose.yaml
         max_connections: parseInt(databaseConnectionsValue),
-        open_connections: databaseOpenedConnectionsValue,
+        opened_connections: databaseOpenedConnectionsValue,
       },
     },
   });
