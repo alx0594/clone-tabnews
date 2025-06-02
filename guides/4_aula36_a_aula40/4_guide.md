@@ -100,3 +100,62 @@ function DatabaseStatus() {
 2. Os componentes UpdateAt e DatabaseStatus chamam a function fetchAPI, passando como key o endpoint `api/v1/status`
 3. Usando `useSWR`, recuperamos `isLoading` (como se fosse um await, retorna true se os dados retornaram ou false se ainda não)
 4. Fazemos a verificação, se não está loading e existe data, setamos a variável que será retornada
+
+# Dia 38
+
+## Tratamento e Padronização de Erros
+
+**Exemplos de customização de erros em JavaScript**
+
+```javascript
+class ValidationError extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = 400;
+  }
+}
+
+function salvarUsuario(input) {
+  if (!input) {
+    throw new ReferenceError("É necessário enviar um 'input'");
+  }
+
+  if (!input.name) {
+    throw new ValidationError("Preencha o seu nome completo!");
+  }
+
+  if (!input.username) {
+    throw new ValidationError("Preencha o seu apelindo!");
+  }
+
+  user.save(input);
+}
+
+try {
+  //salvarUsuario(); // Throw é necessário enviar um input linha 10
+  salvarUsuario({ name: "Alex" }); // Throw preenche o seu apelido! linha 18
+  //salvarUsuario({ name: "Alex", username: "Tu" }); // Throw user not defined linha 21
+} catch (error) {
+  if (error instanceof ReferenceError) {
+    throw error;
+  }
+
+  if (error instanceof ValidationError) {
+    console.error(error);
+    return;
+  }
+
+  console.log("Erro desconhecido");
+  console.log(error.stack);
+}
+```
+
+**Importante**  
+Em conformidade com os testes, quando não usamos try catch, o status code lançado é sempre maior que um `echo $?`, porém ao adicionar o try catch, entende-se que o erro foi tratado e sempre retorna status code `0`
+
+# Dia 39
+
+### Dicas
+
+**Erro de fallback**: Quando não temos a mínima ideia do erro retornado pelo servidor.
+**?**: Em JavaScript o Optional Chaining (Encadeamento Opcional). Ele verifica se a variável não possui um valor `undefined` ou `null` daí sim chama o método quem vem depois: `clien?.end()`
