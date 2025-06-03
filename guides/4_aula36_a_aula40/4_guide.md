@@ -320,4 +320,4 @@ async function query(queryObject) {
 
 ### Padronizar os controllers
 
-1. Instalar **next-connect** `npm i -E next-connect@1.0.0`
+1. Instalar **next-connect** `npm i -E next-connect@1.0.0` para trabalhar com rotas.
