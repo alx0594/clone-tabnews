@@ -317,3 +317,7 @@ async function query(queryObject) {
 **?**: Em JavaScript o Optional Chaining (Encadeamento Opcional). Ele verifica se a variável não possui um valor `undefined` ou `null` daí sim chama o método quem vem depois: `clien?.end()`
 
 ## Segunda Pista Lenta
+
+### Padronizar os controllers
+
+1. Instalar **next-connect** `npm i -E next-connect@1.0.0` para trabalhar com rotas.
