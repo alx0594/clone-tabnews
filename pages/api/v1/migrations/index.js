@@ -29,8 +29,6 @@ async function getHandler(request, response) {
       dbClient,
     });
     return response.status(200).json(pendingMigrations);
-    console.error(error);
-    throw error;
   } finally {
     await dbClient?.end();
   }
