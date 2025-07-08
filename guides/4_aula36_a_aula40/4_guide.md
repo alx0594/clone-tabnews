@@ -302,9 +302,11 @@ async function query(queryObject) {
     const result = await client.query(queryObject);
     return result;
   } catch (error) {
-    console.log("\nErro dentro do catch do database.js");
-    console.error(error);
-    throw error;
+   const serviceErrorObject = new ServiceError({
+      message: "Erro na conexão com o Banco ou na Query.",
+      cause: error,
+    });
+    throw serviceErrorObject;
   } finally {
     await client?.end(); // <-------|
   }
@@ -321,3 +323,99 @@ async function query(queryObject) {
 ### Padronizar os controllers
 
 1. Instalar **next-connect** `npm i -E next-connect@1.0.0` para trabalhar com rotas.
+2. Nos index da API status e migrations, importar o createRouter de next-connect.
+3. Declarar `router = createRouter()`
+4. Configurar handler de acordo com métodos http. `router.get(getHandler)` e `router.post(postHandler)`
+5. O export default sempre chamará o controller para possíveis tratamentos de erros: `export default router.handler(controller.errorHandlers)`
+
+```javascript
+import { createRouter } from "next-connect";
+import controller from "infra/controller";
+import migrator from "model/migrator.js";
+
+const router = createRouter();
+
+router.get(getHandler); //recebe um handler
+router.post(postHandler); //recebe um handler
+
+export default router.handler(controller.errorHandlers);
+
+async function getHandler(request, response) {
+  const migratedMigrations = await migrator.listPendingMigrations();
+  return response.status(200).json(migratedMigrations);
+}
+
+async function postHandler(request, response) {
+  const migratedMigrations = await migrator.runPendingMigrations();
+  if (migratedMigrations.length > 0) {
+    return response.status(201).json(migratedMigrations);
+  }
+  return response.status(200).json(migratedMigrations);
+}
+
+```
+
+### Models
+
+Os models deverá conter toda regra de negócio.
+- Interação com o banco de dados para extrair informações do status do mesmo.
+- Listagem e execução de migrations
+- CRUD de usuário.
+- etc
+
+**Exemplo**  
+
+```javascript
+import migrationRunner from "node-pg-migrate";
+import { resolve } from "node:path";
+import database from "infra/database.js";
+
+const defaultMigrationsOptions = {
+  dryRun: true,
+  dir: resolve("infra", "migrations"),
+  direction: "up",
+  verbose: true,
+  migrationsTable: "pgmigrations",
+};
+
+async function listPendingMigrations() {
+  let dbClient;
+  try {
+    dbClient = await database.getNewClient();
+
+    const pendingMigrations = await migrationRunner({
+      ...defaultMigrationsOptions,
+      dbClient,
+    });
+
+    return pendingMigrations;
+  } finally {
+    await dbClient?.end();
+  }
+}
+
+async function runPendingMigrations() {
+  let dbClient;
+  try {
+    dbClient = await database.getNewClient();
+
+    const migratedMigrations = await migrationRunner({
+      ...defaultMigrationsOptions,
+      dbClient,
+      dryRun: false,
+    });
+
+    return migratedMigrations;
+  } finally {
+    await dbClient?.end();
+  }
+}
+
+const migrator = {
+  listPendingMigrations,
+  runPendingMigrations,
+};
+
+export default migrator;
+
+```
