@@ -5,3 +5,123 @@
 - Criar branch model-user
 - Apagar migration de teste /infra/migrations/....teste-migrations
   `git rm infra/migrations/1746050980513_test-migrations.js`
+- Estruturar testes integrados para migration de users. `tests\integration\api\v1\users\post.test.js`
+- Por hora, criar migrations para users usando o npm: `npm run migrations:create create users`
+- No arquivo de migrations user criado, criar tabela **users**
+- Ajustar orchestrator para executar as migrations antes de iniciar os testes, visto que a base de dados é limpa a cada teste.
+
+**Orchestrator**  
+
+```javascript
+async function runPendingMigrations() {
+  await migrator.runPendingMigrations();
+}
+```
+
+**post.test.js**
+
+```javascript
+import orchestrator from "tests/orchestrator.js";
+import database from "infra/database";
+
+beforeAll(async () => {
+  await orchestrator.waitForAllServices();
+  await orchestrator.clearDatabase();
+  await orchestrator.runPendingMigrations();
+});
+```
+
+**Tabela users**   
+
+```javascript
+/**
+ * @type {import('node-pg-migrate').ColumnDefinitions | undefined}
+ */
+exports.shorthands = undefined;
+
+/**
+ * @param pgm {import('node-pg-migrate').MigrationBuilder}
+ * @param run {() => void | undefined}
+ * @returns {Promise<void> | void}
+ */
+exports.up = (pgm) => {
+  pgm.createTable("users", {
+    id: {
+      type: "uuid",
+      primaryKey: true,
+      default: pgm.func("gen_random_uuid()"),
+    },
+    // Para referência, GitHub limita usernames para 39 caracteres
+    username: {
+      type: "varchar(30)",
+      notNull: true,
+      unique: true,
+    },
+
+    // Por que 254? https://stackoverflow.com/a/1199238
+    email: {
+      type: "varchar(254)",
+      notNull: true,
+      unique: true,
+    },
+    // Por que 72? https://security.stackexchange.com/q/39849
+    password: {
+      type: "varchar(72)",
+      notNull: true,
+    },
+
+    // Timestamp com time zone: timestamptz
+    // Sempre use timestamp com time zone: https://justatheory.com/2012/04/postgres-use-timestamptz/
+    created_at: {
+      type: "timestamptz",
+      default: pgm.func("now()"),
+    },
+
+    updated_at: {
+      type: "timestamptz",
+      default: pgm.func("now()"),
+    },
+  });
+};
+
+exports.down = false;
+
+```
+
+**Testanto INSERT temporário pelo módulo de testes**  
+
+```javascript
+import orchestrator from "tests/orchestrator.js";
+import database from "infra/database";
+
+beforeAll(async () => {
+  await orchestrator.waitForAllServices();
+  await orchestrator.clearDatabase();
+  await orchestrator.runPendingMigrations();
+});
+
+describe("POST /api/v1/users", () => {
+  describe("Anonymous user", () => {
+    test("With unique and valid data", async () => {
+      await database.query({
+        text: "INSERT INTO users (username, email, password, created_at, updated_at) VALUES ($1, $2, $3, $4, $5)",
+        values: ["alexdesouza", "alex94tu@gmail.com", "senha123"],
+      });
+      const users = await database.query("SELECT * FROM users");
+
+      console.log(users.rows);
+      const response = await fetch("http://localhost:3000/api/v1/users", {
+        method: "POST",
+      });
+      expect(response.status).toBe(201);
+    });
+  });
+});
+
+```
+
+### Dicas
+
+**UUID** - Universally Unique Identifier (Identificador Único Universal)
+
+**varchar** - Variable Character (Caracter variável)
