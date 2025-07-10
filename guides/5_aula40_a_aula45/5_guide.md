@@ -120,8 +120,26 @@ describe("POST /api/v1/users", () => {
 
 ```
 
+## Segunda Pista Lenta
+
+### Rota
+
+- Criar /api/v1/users/index.js
+
+### Controller
+
+### Model
+
+### Testes Integrados
+
+- Instalar dependência uuid, para trabalhar com o id da tabela user que está nesse formato.
+
+- No teste post do user, importar `version` de `uuid`
+
 ### Dicas
 
 **UUID** - Universally Unique Identifier (Identificador Único Universal)
 
 **varchar** - Variable Character (Caracter variável)
+
+**JSON.stringify({})** - Pega um objeto JavaScript e converte ele para uma string em Json.
