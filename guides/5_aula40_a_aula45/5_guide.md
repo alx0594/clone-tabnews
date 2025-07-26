@@ -154,3 +154,5 @@ Onde iremos fazer a refatoração da tabela User.
 O `^` é usado para chegarmos no commit em questão. Ou poderiamos pegar o commit anterior. Teria o mesmo efeito. `git rebase -i 22564db01cc2170d17d3efdb6ea37d8440aea71f`
 
 Por fim, `git commit --amend` e `git rebase --continue`
+
+
