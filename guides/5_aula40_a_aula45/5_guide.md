@@ -155,4 +155,6 @@ O `^` é usado para chegarmos no commit em questão. Ou poderiamos pegar o commi
 
 Por fim, `git commit --amend` e `git rebase --continue`
 
+No Banco de dados Neon, foi necessário excluir a tabela pgmigrations para remover os testes de migração realizado anteriormente.
 
+Projeto >> Editor SQL: DROP table pgmigrations. Tanto para stating quanto para production.

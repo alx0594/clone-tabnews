@@ -41,13 +41,13 @@ exports.up = (pgm) => {
     created_at: {
       type: "timestamptz",
       notNull: true,
-      default: pgm.func("timezone('utc', now()"),
+      default: pgm.func("timezone('utc', now())"),
     },
 
     updated_at: {
       type: "timestamptz",
       notNull: true,
-      default: pgm.func("timezone('utc', now()"),
+      default: pgm.func("timezone('utc', now())"),
     },
   });
 };
