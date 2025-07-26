@@ -158,3 +158,23 @@ Por fim, `git commit --amend` e `git rebase --continue`
 No Banco de dados Neon, foi necessário excluir a tabela pgmigrations para remover os testes de migração realizado anteriormente.
 
 Projeto >> Editor SQL: DROP table pgmigrations. Tanto para stating quanto para production.
+
+**REQBIN**
+
+https://reqbin.com/
+
+POST para:
+https://clone-tabnews-git-model-user-alx0594s-projects.vercel.app/api/v1/migrations
+
+Assim, será executada as migrations em staging
+
+Criar usuário:
+POST
+
+https://clone-tabnews-git-model-user-alx0594s-projects.vercel.app/api/v1/users
+
+{
+  "username": "Alex",
+  "email": "alex@gmail.com",
+  "password": "senha123"
+}
