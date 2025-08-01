@@ -178,3 +178,40 @@ https://clone-tabnews-git-model-user-alx0594s-projects.vercel.app/api/v1/users
   "email": "alex@gmail.com",
   "password": "senha123"
 }
+
+
+# Dia 43
+
+### Primeira pista lenta
+
+- Nunca assumir que o assunto segurança está tudo Ok.
+- Nunca armazenar senha em texto puro.
+
+O correto é não armazenar as senhas no banco de dados. Tá, mas como fazemos isso?
+
+1. Usando Hash
+crackstation.net (Quebra de hash de senhas comuns). Não usar senhas fracas!
+
+2. Usando Hash + Salt
+Ajudamos os usuários mesmo quando usam senhas fracas
+
+- Bcrypt
+Algoritmo usado para computar hash
+Site para usar de exemplo: https://bcrypt-generator.com/
+
+3. Usando Hash + Salt + Pepper
+Além do sal (salt) também vamos apimentar (pepper) a senha do usuário.
+
+- Pepper não deve ser salvo no banco de dados.
+- O Pepper pode ser declarado em uma variável de ambiente.
+- Senha + Pepper + Salt -> A partir disso é gerado o hash.
+
+Exemplo:
+No gerenciadores de senha, usado como plug-in do navegador, o bitwarden, por exemplo. Eles sempre geram uma senha de auto entropia, e quando adicionamos a essa senha, por exemplo, a letra A no início e a letra Z no final, é um tipo de pepper entre o bitwarden e o site que estou adicinando a senha.
+
+# Dia 44
+
+## Primeira pista lenta.
+
+1. Criar model password.
+2. Instalar dependência bcryptjs: `npm install bcryptjs@3.0.2`
