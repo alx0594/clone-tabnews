@@ -178,3 +178,108 @@ https://clone-tabnews-git-model-user-alx0594s-projects.vercel.app/api/v1/users
   "email": "alex@gmail.com",
   "password": "senha123"
 }
+
+
+# Dia 43
+
+### Primeira pista lenta
+
+- Nunca assumir que o assunto segurança está tudo Ok.
+- Nunca armazenar senha em texto puro.
+
+O correto é não armazenar as senhas no banco de dados. Tá, mas como fazemos isso?
+
+1. Usando Hash
+crackstation.net (Quebra de hash de senhas comuns). Não usar senhas fracas!
+
+2. Usando Hash + Salt
+Ajudamos os usuários mesmo quando usam senhas fracas
+
+- Bcrypt
+Algoritmo usado para computar hash
+Site para usar de exemplo: https://bcrypt-generator.com/
+
+3. Usando Hash + Salt + Pepper
+Além do sal (salt) também vamos apimentar (pepper) a senha do usuário.
+
+- Pepper não deve ser salvo no banco de dados.
+- O Pepper pode ser declarado em uma variável de ambiente.
+- Senha + Pepper + Salt -> A partir disso é gerado o hash.
+
+Exemplo:
+No gerenciadores de senha, usado como plug-in do navegador, o bitwarden, por exemplo. Eles sempre geram uma senha de auto entropia, e quando adicionamos a essa senha, por exemplo, a letra A no início e a letra Z no final, é um tipo de pepper entre o bitwarden e o site que estou adicinando a senha.
+
+# Dia 44
+
+## Primeira pista lenta.
+
+1. Criar model password.
+2. Instalar dependência bcryptjs: `npm install bcryptjs@3.0.2`
+
+
+## Segunda Pista Lenta
+
+Método PUT ou Método Patch?
+Por que existe do métodos para atualizar algo?
+A diferença está na granularidade. 
+
+Se a diferença está na granularidade. O correto então, quando formos atualizar o campo específico, devemos usar PATCH. Exemplo:
+
+Se um usuário tiver: username, idade, email. E eu só quero atualizar o e-mail, o correto é usar o método HTTP PATCH.
+
+- PATCH: Atualizar atributo específico.
+- PUT: Sobrepoem o objeto anterior.
+
+Se nos meus registros tenho o seguinte usuário:
+
+```json
+{
+  "username": "alexdesouza",
+  "email": "alex@gmail.com",
+  "email2": "alex2@gmail.com",
+}
+```
+
+E eu enviar uma requisição HTTP usando o método PUT apenas com usuário e email, o valor será sobreposto, ficando conforme abaixo:
+
+```json
+{
+  "username": "alexdesouza",
+  "email": "alex@gmail.com",
+}
+```
+
+Por tanto, para atualização completa do objeto, usar PUT. 
+Para apeans um campo específico, usar PATCH (Remendo).
+
+### Usando testes de guerrilha
+
+O teste de guerrilha é uma estratégia de construção do máximo de testes de falhas possíveis. Por exemplo, testar atualizar o usuário que não exite. Tentar atualizar um usuário que já existe para outro usuário, etc. Indo de cenário e cenário de erros.
+
+
+### Regex Jest para teste específico:
+
+npm run test:watch -- users/.username./patch
+
+O ponto (.) em Regex significa qualquer caractere
+
+
+### Closure
+
+Nada mais é do que uma função dentro da outra.
+
+async function create() {
+  await userUniqueValidade();
+  await emailUniqueValidade();
+
+  async function userUniqueValidade(){};
+  async function emailUniqueValidade(){};
+}
+
+
+### Usando Speread ... (Espalhar)
+
+... spread. Espalhar o que tem dentro do objeto.
+O que está na direita irá sobrescrever o que está na esquerda
+const userWithNewValue = {...currentUser, ...userInputValues}
+

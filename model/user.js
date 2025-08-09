@@ -1,5 +1,6 @@
 import database from "infra/database.js";
 import { ValidationError, NotFoundError } from "infra/errors.js";
+import password from "model/password.js";
 
 async function findOneByUsername(username) {
   const userFound = await runSelectQuery(username);
@@ -33,53 +34,12 @@ async function findOneByUsername(username) {
 }
 
 async function create(userInputValues) {
-  await validateUniqueEmail(userInputValues.email);
   await validateUniqueUsername(userInputValues.username);
+  await validateUniqueEmail(userInputValues.email);
+  await hashPasswordInObject(userInputValues);
 
   const newUser = await runInsertQuery(userInputValues);
   return newUser;
-
-  async function validateUniqueEmail(email) {
-    const results = await database.query({
-      text: `
-      SELECT 
-        email
-      FROM 
-        users
-      WHERE
-        LOWER(email) = LOWER($1)
-      ;`,
-      values: [email],
-    });
-
-    if (results.rowCount > 0) {
-      throw new ValidationError({
-        message: "O email informado já está sendo utilizado.",
-        action: "Utilize outro e-mail para realizar o cadastro.",
-      });
-    }
-  }
-
-  async function validateUniqueUsername(username) {
-    const results = await database.query({
-      text: `
-      SELECT 
-        username
-      FROM 
-        users
-      WHERE
-        LOWER(username) = LOWER($1)
-      ;`,
-      values: [username],
-    });
-
-    if (results.rowCount > 0) {
-      throw new ValidationError({
-        message: "O usuário informado já está sendo utilizado.",
-        action: "Utilize outro usuário para realizar o cadastro.",
-      });
-    }
-  }
 
   async function runInsertQuery(userInputValues) {
     const results = await database.query({
@@ -101,9 +61,105 @@ async function create(userInputValues) {
   }
 }
 
+async function update(username, userInputValues) {
+  const currentUser = await findOneByUsername(username);
+
+  if ("username" in userInputValues) {
+    await validateUniqueUsername(userInputValues.username);
+  }
+
+  if ("email" in userInputValues) {
+    await validateUniqueEmail(userInputValues.email);
+  }
+
+  if ("password" in userInputValues) {
+    await hashPasswordInObject(userInputValues);
+  }
+
+  // ... spread. Espalhar o que tem dentro do objeto.
+  // O que está na direita irá sobrescrever o que está na esquerda
+  const userWithNewValue = { ...currentUser, ...userInputValues };
+
+  const updateUser = await runUpdateQuery(userWithNewValue);
+  return updateUser;
+
+  async function runUpdateQuery(userWithNewValue) {
+    const results = await database.query({
+      text: `
+      UPDATE
+        users
+      SET
+        username = $2,
+        email = $3,
+        password = $4,
+        updated_at = timezone('utc', now())
+      WHERE 
+        id = $1
+      RETURNING
+        *
+      `,
+      values: [
+        userWithNewValue.id,
+        userWithNewValue.username,
+        userWithNewValue.email,
+        userWithNewValue.password,
+      ],
+    });
+    return results.rows[0];
+  }
+}
+
+async function validateUniqueUsername(username) {
+  const results = await database.query({
+    text: `
+    SELECT 
+      username
+    FROM 
+      users
+    WHERE
+      LOWER(username) = LOWER($1)
+    ;`,
+    values: [username],
+  });
+
+  if (results.rowCount > 0) {
+    throw new ValidationError({
+      message: "O usuário informado já está sendo utilizado.",
+      action: "Utilize outro usuário para realizar esta operação.",
+    });
+  }
+}
+
+async function validateUniqueEmail(email) {
+  const results = await database.query({
+    text: `
+    SELECT 
+      email
+    FROM 
+      users
+    WHERE
+      LOWER(email) = LOWER($1)
+    ;`,
+    values: [email],
+  });
+
+  if (results.rowCount > 0) {
+    throw new ValidationError({
+      message: "O email informado já está sendo utilizado.",
+      action: "Utilize outro email para realizar esta operação.",
+    });
+  }
+}
+
+async function hashPasswordInObject(userInputValues) {
+  const hashPassord = await password.hash(userInputValues.password);
+  userInputValues.password = hashPassord;
+}
+
 const user = {
   create,
   findOneByUsername,
+  update,
 };
 
 export default user;
