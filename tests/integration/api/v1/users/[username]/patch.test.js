@@ -1,5 +1,7 @@
 import orchestrator from "tests/orchestrator.js";
 import { version as uuidVersion } from "uuid";
+import user from "model/user.js";
+import password from "model/password.js";
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices();
@@ -150,7 +152,7 @@ describe("PATCH /api/v1/users/[username]", () => {
         // Pega objeto javascript e converte para uma string em json.
         body: JSON.stringify({
           username: "uniqueUser1",
-          email: "uniqueEmail1@gmail.com",
+          email: "uniqueUser1@gmail.com",
           password: "senha123",
         }),
       });
@@ -180,7 +182,7 @@ describe("PATCH /api/v1/users/[username]", () => {
       expect(responseBody).toEqual({
         id: responseBody.id,
         username: "uniqueUser2",
-        email: "uniqueEmail1@gmail.com",
+        email: "uniqueUser1@gmail.com",
         password: responseBody.password,
         created_at: responseBody.created_at,
         updated_at: responseBody.updated_at,
@@ -191,6 +193,126 @@ describe("PATCH /api/v1/users/[username]", () => {
       expect(Date.parse(responseBody.updated_at)).not.toBeNaN();
 
       expect(responseBody.updated_at > responseBody.created_at).toBe(true);
+    });
+
+    test("With unique 'email'", async () => {
+      // Adiciona usuário 1
+      const user1Response = await fetch("http://localhost:3000/api/v1/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // Pega objeto javascript e converte para uma string em json.
+        body: JSON.stringify({
+          username: "uniqueEmail1",
+          email: "uniqueEmail1@gmail.com",
+          password: "senha123",
+        }),
+      });
+
+      expect(user1Response.status).toBe(201);
+
+      // Tenta atualizar usuário 2 com informações únicas do usuário 1
+
+      const response = await fetch(
+        "http://localhost:3000/api/v1/users/uniqueEmail1",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          // Pega objeto javascript e converte para uma string em json.
+          body: JSON.stringify({
+            email: "uniqueEmail2@gmail.com",
+          }),
+        },
+      );
+
+      expect(response.status).toBe(200);
+
+      const responseBody = await response.json();
+
+      expect(responseBody).toEqual({
+        id: responseBody.id,
+        username: "uniqueEmail1",
+        email: "uniqueEmail2@gmail.com",
+        password: responseBody.password,
+        created_at: responseBody.created_at,
+        updated_at: responseBody.updated_at,
+      });
+
+      expect(uuidVersion(responseBody.id)).toBe(4);
+      expect(Date.parse(responseBody.created_at)).not.toBeNaN();
+      expect(Date.parse(responseBody.updated_at)).not.toBeNaN();
+
+      expect(responseBody.updated_at > responseBody.created_at).toBe(true);
+    });
+
+    test("With new 'password'", async () => {
+      // Adiciona usuário 1
+      const user1Response = await fetch("http://localhost:3000/api/v1/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // Pega objeto javascript e converte para uma string em json.
+        body: JSON.stringify({
+          username: "newPassword",
+          email: "newPassword@gmail.com",
+          password: "newPassword1",
+        }),
+      });
+
+      expect(user1Response.status).toBe(201);
+
+      // Tenta atualizar usuário 2 com informações únicas do usuário 1
+
+      const response = await fetch(
+        "http://localhost:3000/api/v1/users/newPassword",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          // Pega objeto javascript e converte para uma string em json.
+          body: JSON.stringify({
+            password: "newPassword2",
+          }),
+        },
+      );
+
+      expect(response.status).toBe(200);
+
+      const responseBody = await response.json();
+
+      expect(responseBody).toEqual({
+        id: responseBody.id,
+        username: "newPassword",
+        email: "newPassword@gmail.com",
+        password: responseBody.password,
+        created_at: responseBody.created_at,
+        updated_at: responseBody.updated_at,
+      });
+
+      expect(uuidVersion(responseBody.id)).toBe(4);
+      expect(Date.parse(responseBody.created_at)).not.toBeNaN();
+      expect(Date.parse(responseBody.updated_at)).not.toBeNaN();
+
+      expect(responseBody.updated_at > responseBody.created_at).toBe(true);
+
+      const userInDatabase = await user.findOneByUsername("newPassword");
+      const correctPassword = await password.compare(
+        "newPassword2",
+        userInDatabase.password,
+      );
+
+      const incorrectPassword = await password.compare(
+        "newPassword1",
+        userInDatabase.password,
+      );
+
+      expect(correctPassword).toBe(true);
+      expect(incorrectPassword).toBe(false);
     });
   });
 });

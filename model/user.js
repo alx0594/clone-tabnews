@@ -41,11 +41,6 @@ async function create(userInputValues) {
   const newUser = await runInsertQuery(userInputValues);
   return newUser;
 
-  async function hashPasswordInObject(userInputValues) {
-    const hashPassord = await password.hash(userInputValues.password);
-    userInputValues.password = hashPassord;
-  }
-
   async function runInsertQuery(userInputValues) {
     const results = await database.query({
       text: `
@@ -75,6 +70,10 @@ async function update(username, userInputValues) {
 
   if ("email" in userInputValues) {
     await validateUniqueEmail(userInputValues.email);
+  }
+
+  if ("password" in userInputValues) {
+    await hashPasswordInObject(userInputValues);
   }
 
   // ... spread. Espalhar o que tem dentro do objeto.
@@ -150,6 +149,11 @@ async function validateUniqueEmail(email) {
       action: "Utilize outro email para realizar esta operação.",
     });
   }
+}
+
+async function hashPasswordInObject(userInputValues) {
+  const hashPassord = await password.hash(userInputValues.password);
+  userInputValues.password = hashPassord;
 }
 
 const user = {
