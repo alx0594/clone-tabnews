@@ -283,3 +283,46 @@ async function create() {
 O que está na direita irá sobrescrever o que está na esquerda
 const userWithNewValue = {...currentUser, ...userInputValues}
 
+## Quarta Pista Lenta
+
+### Gerando usuários automáticos para testes.
+
+Regex para apenas teste de get: `npm run test:watch -- username./get`
+
+Instalar Faker para geração de emails ou username: `npm install -E -D faker-js/faker@9.7.0`
+
+Importar o faker no **orchestrator.js**
+`import { faker } from @faker-js/facker`
+
+E agora usar: `faker.internet.email(),`
+
+O método createUser no módulo `orchestrator.js` deverá ficar conforme abaixo:
+
+```javascript
+  async function createUser(userObject) {
+  return await user.create({
+    username:
+      userObject.username || faker.internet.username().replace(/[_.-]/g, ""), // # regex para subistituir _ . - da string username, que pode ser gerada pelo faker.
+    email: userObject.email || faker.internet.email(),
+    password: userObject.password || "validaPassword",
+  });
+}
+```
+
+Logo, nos meus testes que não diz respeito a insersão de usuário, não precisará mais realizar request de POST para adiconar usuário antes de testes de GET ou PATCH, por exemplo.
+
+Exemplo módulo de teste:
+
+```javascript
+   test("With duplicated 'username'", async () => {
+      await orchestrator.createUser({
+        username: "user1",
+      });
+```
+
+Regex para ajustar string de username gerada pelo faker
+o `/g` significa que irá varrer a string de forma geral.
+
+```javascript
+userObject.username || faker.internet.username().replace(/[_.-]/g, ""), // # regex para subistituir _ . - da string username, que pode ser gerada pelo faker.
+```
