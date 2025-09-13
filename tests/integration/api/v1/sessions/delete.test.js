@@ -141,3 +141,7 @@ describe("DELETE /api/v1/session", () => {
     });
   });
 });
+
+// Fazer leitura e implementação da PR: https://github.com/filipedeschamps/clone-tabnews/pull/57
+// Mesmo invalidando o cookie o token da sessão ainda fica no navegador.
+// A solução está na PR acima.
