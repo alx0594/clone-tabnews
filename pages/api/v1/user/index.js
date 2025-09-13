@@ -22,6 +22,7 @@ async function getHandler(request, response) {
   // tratando E-tag que retorna 304 quando os dados não foram alterados
   // E ninguém usar cache no meio do caminho, tipo Next, Vercel..
   // Rever aula para reter conhecimento
+  // https://github.com/filipedeschamps/clone-tabnews/pull/55
 
   response.setHeader(
     "Cache-Control",

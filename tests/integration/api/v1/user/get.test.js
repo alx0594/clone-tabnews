@@ -67,8 +67,6 @@ describe("GET /api/v1/user", () => {
         map: true,
       });
 
-      console.log(parsedSetCookie);
-
       expect(parsedSetCookie.session_id).toEqual({
         name: "session_id",
         value: sessionObject.token,
@@ -130,5 +128,8 @@ describe("GET /api/v1/user", () => {
         status_code: 401,
       });
     });
+
+    // Desafio do teste usando jest.Facke.timers() com data de expiracao faltando um dia
+    // E depois validar a renovação.
   });
 });
