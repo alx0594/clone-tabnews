@@ -64,4 +64,91 @@ telnet - Telecommunication Network (Abre comunicação entre dois pontos)
   8. Enviar email, basta digitar .
   9. Finalizar com QUIT
 
+## Terceira Pista Lenta
+
+O fato de se comunicar através do protocolo SMTP fugimos de **Vendor Lock in** pois o protocolo é padronizado, logo, podemos trocar 
+o serviço de e-mail e continuar usando o mesmo mecanismo de comunicação.
+
+1. Instalar Biblioteca `npm install -E nodemailer@7.0.5`
+2. Na pasta `infra`, criar um módulo para email: `email.js`
+3. Na pasta `tests/integration`, criar pasta `infra` e adicionar `email.test.js`
+
+- Implementar testes de integração com o e-mail:
+
+```javascript
+import email from "infra/email.js";
+
+describe("infra/email.js", () => {
+  test("send()", async () => {
+    await email.send({
+      from: "FinTab <contato@fintab.com.br>",
+      to: "contato@gmail.com",
+      subject: "Teste de assunto",
+      text: "Teste de Corpo.",
+    });
+  });
+});
+```
+
+- Construção do módulo de email
+
+```javascript
+import nodemailer from "nodemailer";
+
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_SMTP_HOST,
+  port: process.env.EMAIL_SMTP_PORT,
+  auth: {
+    user: process.env.EMAIL_SMTP_USER,
+    pass: process.env.EMAIL_SMTP_PASSWORD,
+  },
+  secure: process.env.NODE_ENV === "production" ? true : false,
+});
+
+async function send(mailOptions) {
+  await transporter.sendMail(mailOptions);
+}
+
+const email = {
+  send,
+};
+
+export default email;
+
+```
+
+## Quarta Pista Lenta
+
+### Entendendo uma funcionalidade que não está documentada na API
+
+A funcionalidade de clear não está documentada para uso na API do mailcatcher. 
+
+Mas existe uma forma de encontrarmos como é feito, uma vez que um client (navegador) consegue fazer, há grande probabilidade de usarmos como API.
+
+1. No navegador, usar o modo desenvolvedor (F12). localhost:1080
+2. Clicar na Aba Network
+3. Realizar a ação (No caso, clicar no botão clear)
+4. A esquerda, clicar no evento realizado, posteriormente a direita em Headers, verificar o que foi realizado.
+
+Request URL: http://localhost:1080/messages
+Request Methodo: DELETE
+Status Code: 204
+
+### Adicionar funcionalidade de limpar caixa de e-mail nos testes
+
+No orchestrator.js, adiconar function abaixo:
+
+```javascript
+async function deleteAllEmails() {
+  await fetch(
+    `http://${process.env.EMAIL_HTTP_HOST}:${process.env.EMAIL_HTTP_PORT}/messages`,
+    {
+      method: "DELETE",
+    },
+  );
+}
+```
+
+
+
 
